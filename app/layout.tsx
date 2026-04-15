@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import FloatingContactBar from '@/components/floating-contact-bar'
+import { ScrollProgressBar } from '@/components/scroll-progress-bar'
+import { BackToTop } from '@/components/back-to-top'
+import { ToastSystem } from '@/components/toast-system'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -65,11 +68,42 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        name: 'XKLD VietDai',
+        url: 'https://xkldvietdai.com',
+        logo: 'https://xkldvietdai.com/icon.svg',
+        contactPoint: {
+          '@type': 'ContactPoint',
+          contactType: 'customer support',
+          email: 'info@xkldvietdai.com',
+        },
+      },
+      {
+        '@type': 'WebSite',
+        name: 'XKLD VietDai',
+        url: 'https://xkldvietdai.com',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: 'https://xkldvietdai.com/jobs?search={search_term_string}',
+          'query-input': 'required name=search_term_string',
+        },
+      },
+    ],
+  }
+
   return (
     <html lang="en" className="bg-background">
       <body className="font-sans antialiased bg-background text-foreground">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+        <ScrollProgressBar />
         {children}
         <FloatingContactBar />
+        <BackToTop />
+        <ToastSystem />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

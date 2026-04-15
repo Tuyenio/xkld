@@ -1,11 +1,15 @@
+'use client'
+
+import { useMemo, useState } from 'react'
 import AdminSidebar from '@/components/admin-sidebar'
 import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { PremiumModal } from '@/components/premium-modal'
 import { Search, UserPlus, Shield, Mail, Phone } from 'lucide-react'
 
-const users = [
+const initialUsers = [
   {
     id: 1,
     name: 'Truong Minh Tuan',
@@ -13,6 +17,7 @@ const users = [
     phone: '+84 93 123 7890',
     role: 'admin',
     status: 'active',
+    verified: true,
     joinedAt: '2026-01-12',
   },
   {
@@ -22,6 +27,7 @@ const users = [
     phone: '+84 97 333 2221',
     role: 'recruiter',
     status: 'active',
+    verified: true,
     joinedAt: '2026-02-03',
   },
   {
@@ -31,6 +37,7 @@ const users = [
     phone: '+84 98 888 1100',
     role: 'editor',
     status: 'pending',
+    verified: false,
     joinedAt: '2026-03-18',
   },
   {
@@ -40,6 +47,7 @@ const users = [
     phone: '+84 90 444 7712',
     role: 'support',
     status: 'inactive',
+    verified: false,
     joinedAt: '2026-03-25',
   },
 ]
@@ -51,6 +59,44 @@ function roleBadge(role: string) {
 }
 
 export default function AdminUsersPage() {
+  const [users, setUsers] = useState(initialUsers)
+  const [query, setQuery] = useState('')
+  const [roleFilter, setRoleFilter] = useState('all')
+
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const text = `${user.name} ${user.email}`.toLowerCase()
+      const matchesQuery = text.includes(query.toLowerCase())
+      const matchesRole = roleFilter === 'all' || user.role === roleFilter
+      return matchesQuery && matchesRole
+    })
+  }, [users, query, roleFilter])
+
+  const toggleStatus = (id: number) => {
+    setUsers((prev) =>
+      prev.map((user) => {
+        if (user.id !== id) return user
+        return { ...user, status: user.status === 'active' ? 'inactive' : 'active' }
+      })
+    )
+  }
+
+  const toggleVerify = (id: number) => {
+    setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, verified: !user.verified } : user)))
+  }
+
+  const rotateRole = (id: number) => {
+    const roles = ['admin', 'recruiter', 'editor', 'support'] as const
+    setUsers((prev) =>
+      prev.map((user) => {
+        if (user.id !== id) return user
+        const idx = roles.indexOf(user.role as (typeof roles)[number])
+        const nextRole = roles[(idx + 1) % roles.length]
+        return { ...user, role: nextRole }
+      })
+    )
+  }
+
   return (
     <div className="flex h-screen bg-background">
       <AdminSidebar />
@@ -70,9 +116,18 @@ export default function AdminUsersPage() {
 
         <div className="p-6 space-y-6">
           <GlassCard className="p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-              <Input placeholder="Search by name, email, role..." className="pl-10" />
+            <div className="flex flex-col md:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                <Input placeholder="Search by name, email, role..." className="pl-10" value={query} onChange={(e) => setQuery(e.target.value)} />
+              </div>
+              <select className="px-4 py-2 border border-border rounded-lg bg-white" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+                <option value="all">All roles</option>
+                <option value="admin">admin</option>
+                <option value="recruiter">recruiter</option>
+                <option value="editor">editor</option>
+                <option value="support">support</option>
+              </select>
             </div>
           </GlassCard>
 
@@ -89,7 +144,7 @@ export default function AdminUsersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user) => (
+                  {filteredUsers.map((user) => (
                     <tr key={user.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                       <td className="py-4 px-5">
                         <p className="font-semibold text-foreground">{user.name}</p>
@@ -99,7 +154,12 @@ export default function AdminUsersPage() {
                         </div>
                       </td>
                       <td className="py-4 px-5">
-                        <Badge variant={roleBadge(user.role)} className="capitalize">{user.role}</Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={roleBadge(user.role)} className="capitalize">{user.role}</Badge>
+                          <span className={`text-[10px] px-2 py-1 rounded-full ${user.verified ? 'bg-emerald-500/20 text-emerald-700' : 'bg-muted text-muted-foreground'}`}>
+                            {user.verified ? 'Verified' : 'Unverified'}
+                          </span>
+                        </div>
                       </td>
                       <td className="py-4 px-5">
                         <span
@@ -117,16 +177,41 @@ export default function AdminUsersPage() {
                       <td className="py-4 px-5 text-sm text-muted-foreground">{user.joinedAt}</td>
                       <td className="py-4 px-5">
                         <div className="flex gap-2">
-                          <PremiumButton variant="outline" size="sm" icon={<Shield size={14} />}>
-                            Permissions
+                          <PremiumModal
+                            trigger={
+                              <PremiumButton variant="outline" size="sm" icon={<Shield size={14} />}>
+                                Details
+                              </PremiumButton>
+                            }
+                            title={`User details · ${user.name}`}
+                            description="Review account identity, role and verification status"
+                          >
+                            <div className="space-y-2 text-sm">
+                              <p><strong>Email:</strong> {user.email}</p>
+                              <p><strong>Phone:</strong> {user.phone}</p>
+                              <p><strong>Role:</strong> {user.role}</p>
+                              <p><strong>Status:</strong> {user.status}</p>
+                              <p><strong>Verified:</strong> {user.verified ? 'Yes' : 'No'}</p>
+                            </div>
+                          </PremiumModal>
+                          <PremiumButton variant="ghost" size="sm" onClick={() => rotateRole(user.id)}>
+                            Change Role
                           </PremiumButton>
-                          <PremiumButton variant="ghost" size="sm">
-                            Edit
+                          <PremiumButton variant="ghost" size="sm" onClick={() => toggleVerify(user.id)}>
+                            {user.verified ? 'Unverify' : 'Verify'}
+                          </PremiumButton>
+                          <PremiumButton variant="ghost" size="sm" onClick={() => toggleStatus(user.id)}>
+                            {user.status === 'active' ? 'Ban' : 'Unban'}
                           </PremiumButton>
                         </div>
                       </td>
                     </tr>
                   ))}
+                  {filteredUsers.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="py-10 text-center text-muted-foreground">No users match current filters.</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

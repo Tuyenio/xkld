@@ -3,6 +3,7 @@ import Footer from '@/components/footer'
 import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { ScrollReveal } from '@/components/scroll-reveal'
+import { FAQAccordion } from '@/components/faq-accordion'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin, Briefcase, DollarSign, Users, CheckCircle2, Share2, Bookmark, ArrowRight, Star, Clock, TrendingUp } from 'lucide-react'
@@ -59,17 +60,68 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
     skills: ['React', 'Node.js', 'AWS', 'TypeScript', 'Docker', 'CI/CD'],
   }
 
+  const jobStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'JobPosting',
+    title: job.title,
+    description: job.description,
+    datePosted: '2026-04-15',
+    employmentType: job.type,
+    hiringOrganization: {
+      '@type': 'Organization',
+      name: job.company,
+    },
+    jobLocation: {
+      '@type': 'Place',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: job.location,
+        addressCountry: 'TW',
+      },
+    },
+    baseSalary: {
+      '@type': 'MonetaryAmount',
+      currency: 'USD',
+      value: {
+        '@type': 'QuantitativeValue',
+        minValue: 2000,
+        maxValue: 3500,
+        unitText: 'MONTH',
+      },
+    },
+  }
+
+  const breadcrumbStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://xkldvietdai.com' },
+      { '@type': 'ListItem', position: 2, name: 'Jobs', item: 'https://xkldvietdai.com/jobs' },
+      { '@type': 'ListItem', position: 3, name: job.title, item: `https://xkldvietdai.com/jobs/${job.id}` },
+    ],
+  }
+
   return (
     <div className="min-h-screen bg-background">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobStructuredData) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbStructuredData) }} />
       <Header />
 
       {/* Back Button */}
       <section className="bg-background/50 py-4 border-b border-border/50 sticky top-16 z-10 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link href="/jobs" className="text-accent hover:text-accent/80 transition-colors inline-flex items-center gap-2">
-            <ArrowRight size={16} className="rotate-180" />
-            Back to Jobs
-          </Link>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Link href="/jobs" className="text-accent hover:text-accent/80 transition-colors inline-flex items-center gap-2">
+              <ArrowRight size={16} className="rotate-180" />
+              Back to Jobs
+            </Link>
+            <div className="flex items-center gap-4 text-sm">
+              <a href="#overview" className="text-muted-foreground hover:text-primary">Overview</a>
+              <a href="#benefits" className="text-muted-foreground hover:text-primary">Benefits</a>
+              <a href="#company" className="text-muted-foreground hover:text-primary">Company</a>
+              <a href="#faq" className="text-muted-foreground hover:text-primary">FAQ</a>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -79,7 +131,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           <div className="lg:col-span-2">
             {/* Job Header */}
             <ScrollReveal>
-              <GlassCard className="p-8 md:p-10 mb-8">
+              <GlassCard className="p-8 md:p-10 mb-8" id="overview">
                 <div className="mb-8">
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex-1">
@@ -173,9 +225,44 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               </GlassCard>
             </ScrollReveal>
 
+            {/* Company Gallery */}
+            <ScrollReveal delay={0.15}>
+              <GlassCard className="p-8 md:p-10 mb-8">
+                <h2 className="text-3xl font-bold text-foreground mb-6">Company Gallery</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {['HQ', 'Team', 'Workspace', 'Events'].map((item) => (
+                    <div key={item} className="aspect-[4/3] rounded-xl border border-border/60 bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-sm font-semibold text-foreground">
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+            </ScrollReveal>
+
+            {/* Salary Chart */}
+            <ScrollReveal delay={0.18}>
+              <GlassCard className="p-8 md:p-10 mb-8">
+                <h2 className="text-3xl font-bold text-foreground mb-6">Salary Benchmark</h2>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-2"><span>Market Median</span><span>$2,900</span></div>
+                    <div className="h-3 rounded-full bg-muted"><div className="h-3 w-[60%] rounded-full bg-primary" /></div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-2"><span>This Position</span><span>$3,500</span></div>
+                    <div className="h-3 rounded-full bg-muted"><div className="h-3 w-[78%] rounded-full bg-accent" /></div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-2"><span>Top Percentile</span><span>$4,600</span></div>
+                    <div className="h-3 rounded-full bg-muted"><div className="h-3 w-[92%] rounded-full bg-emerald-500" /></div>
+                  </div>
+                </div>
+              </GlassCard>
+            </ScrollReveal>
+
             {/* Benefits */}
             <ScrollReveal delay={0.2}>
-              <GlassCard className="p-8 md:p-10 mb-8">
+              <GlassCard className="p-8 md:p-10 mb-8" id="benefits">
                 <h2 className="text-3xl font-bold text-foreground mb-6">Benefits & Perks</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {job.benefits.map((benefit, i) => (
@@ -190,10 +277,25 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
             {/* About Company */}
             <ScrollReveal delay={0.3}>
-              <GlassCard className="p-8 md:p-10">
+              <GlassCard className="p-8 md:p-10" id="company">
                 <h2 className="text-3xl font-bold text-foreground mb-6">About {job.company}</h2>
                 <p className="text-muted-foreground leading-relaxed text-lg">{job.aboutCompany}</p>
               </GlassCard>
+            </ScrollReveal>
+
+            {/* Job FAQ */}
+            <ScrollReveal delay={0.35}>
+              <div id="faq" className="mt-8">
+                <h2 className="text-3xl font-bold text-foreground mb-6">Job FAQ</h2>
+                <FAQAccordion
+                  defaultOpen="f1"
+                  items={[
+                    { id: 'f1', question: 'Is relocation support included?', answer: 'Yes, relocation and onboarding support are included for shortlisted candidates.' },
+                    { id: 'f2', question: 'Can I apply without prior Taiwan experience?', answer: 'Yes. Role fit is based on skills, portfolio strength, and interview performance.' },
+                    { id: 'f3', question: 'How long does hiring usually take?', answer: 'Typical hiring timeline is 2 to 4 weeks from first interview to final offer.' },
+                  ]}
+                />
+              </div>
             </ScrollReveal>
           </div>
 
@@ -276,11 +378,11 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               Similar <span className="gradient-text">Opportunities</span>
             </h2>
           </ScrollReveal>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <div className="flex gap-6 overflow-x-auto pb-3 snap-x snap-mandatory">
             {[1, 2, 3].map((i) => (
               <ScrollReveal key={i} delay={i * 0.1}>
-                <GlassCard className="p-6 group hover:shadow-xl transition-all h-full flex flex-col">
+                <GlassCard className="p-6 group hover:shadow-xl transition-all h-full flex flex-col min-w-[280px] snap-start">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <p className="text-xs text-accent font-bold uppercase mb-2">Similar</p>

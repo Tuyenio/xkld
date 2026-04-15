@@ -7,7 +7,8 @@ import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Phone, Mail, MapPin, Clock } from 'lucide-react'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Phone, Mail, MapPin, Clock, MessageCircle } from 'lucide-react'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -18,6 +19,8 @@ export default function ContactPage() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState<string | null>(null)
+  const [honeypot, setHoneypot] = useState('')
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   const handleChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -33,12 +36,24 @@ export default function ContactPage() {
       return
     }
 
+    if (honeypot.trim().length > 0) {
+      setSubmitMessage('Spam check failed. Please refresh and try again.')
+      return
+    }
+
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+    if (!emailValid) {
+      setSubmitMessage('Please enter a valid email address.')
+      return
+    }
+
     setIsSubmitting(true)
     await new Promise((resolve) => setTimeout(resolve, 800))
     setIsSubmitting(false)
 
     setFormData({ name: '', email: '', subject: '', message: '' })
     setSubmitMessage('Your message has been sent successfully. Our team will contact you soon.')
+    setShowSuccessModal(true)
   }
 
   return (
@@ -100,6 +115,16 @@ export default function ContactPage() {
             <div className="lg:col-span-2">
               <GlassCard className="p-8">
                 <form className="space-y-6" onSubmit={handleSubmit}>
+                  <input
+                    type="text"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    className="hidden"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                  />
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="text-sm font-semibold text-foreground mb-2 block">Name</label>
@@ -152,6 +177,34 @@ export default function ContactPage() {
               </GlassCard>
             </div>
           </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <GlassCard className="p-0 overflow-hidden">
+              <iframe
+                title="Taipei Office Map"
+                className="w-full h-[320px]"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                src="https://www.google.com/maps?q=Taipei+Taiwan&output=embed"
+              />
+            </GlassCard>
+
+            <GlassCard className="p-8 flex flex-col justify-between">
+              <div>
+                <h3 className="text-2xl font-bold text-foreground mb-3">Need live support?</h3>
+                <p className="text-muted-foreground mb-6">
+                  Our recruitment specialists are available for direct consultation on profile readiness,
+                  visa documents, and interview preparation.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <PremiumButton variant="primary" icon={<MessageCircle size={16} />}>
+                  Start Live Chat
+                </PremiumButton>
+                <PremiumButton variant="outline">Book Consultation</PremiumButton>
+              </div>
+            </GlassCard>
+          </div>
         </div>
       </section>
 
@@ -166,6 +219,17 @@ export default function ContactPage() {
           </p>
         </div>
       </section>
+
+      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <DialogContent className="rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Message sent successfully</DialogTitle>
+            <DialogDescription>
+              Thank you for contacting XKLD VietDai. Our team will respond shortly with next-step guidance.
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

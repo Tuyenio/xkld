@@ -58,17 +58,17 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-secondary transition-colors">
+                <Link href="/faq" className="hover:text-secondary transition-colors">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-secondary transition-colors">
+                <Link href="/privacy-policy" className="hover:text-secondary transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-secondary transition-colors">
+                <Link href="/terms" className="hover:text-secondary transition-colors">
                   Terms of Service
                 </Link>
               </li>
@@ -106,13 +106,13 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center text-sm opacity-90">
             <p>&copy; 2024 XKLD VietDai. All rights reserved.</p>
             <div className="flex gap-4 mt-4 md:mt-0">
-              <Link href="#" className="hover:text-secondary transition-colors">
+              <Link href="/privacy-policy" className="hover:text-secondary transition-colors">
                 Privacy
               </Link>
-              <Link href="#" className="hover:text-secondary transition-colors">
+              <Link href="/terms" className="hover:text-secondary transition-colors">
                 Terms
               </Link>
-              <Link href="#" className="hover:text-secondary transition-colors">
+              <Link href="/sitemap.xml" className="hover:text-secondary transition-colors">
                 Sitemap
               </Link>
             </div>

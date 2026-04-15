@@ -11,10 +11,13 @@ export default function AdminSidebar() {
 
   const navItems = [
     { icon: BarChart3, label: 'Dashboard', href: '/admin' },
+    { icon: BarChart3, label: 'Analytics', href: '/admin/analytics' },
+    { icon: FileText, label: 'Reports', href: '/admin/reports' },
     { icon: Briefcase, label: 'Jobs', href: '/admin/jobs' },
     { icon: Users, label: 'Candidates', href: '/admin/candidates' },
     { icon: FileText, label: 'Applications', href: '/admin/applications' },
     { icon: FileText, label: 'Blog', href: '/admin/blog' },
+    { icon: FileText, label: 'Media', href: '/admin/media' },
     { icon: Users, label: 'Users', href: '/admin/users' },
     { icon: Settings, label: 'Settings', href: '/admin/settings' },
   ]
