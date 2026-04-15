@@ -27,16 +27,16 @@ export default function AdminSidebar() {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-20 right-4 z-40 p-2 bg-primary text-primary-foreground rounded-lg"
+        className="lg:hidden fixed top-20 right-4 z-40 p-2 bg-primary text-primary-foreground rounded-lg shadow-lg"
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 bg-primary text-primary-foreground pt-16 transition-transform duration-300 transform ${
+        className={`fixed left-0 top-0 h-dvh w-72 bg-primary text-primary-foreground pt-16 transition-transform duration-300 transform ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0 md:relative md:top-auto md:h-screen z-30`}
+        } lg:translate-x-0 lg:relative lg:top-auto lg:h-screen z-30 overflow-y-auto`}
       >
         <div className="p-6 border-b border-primary-foreground/20 mb-6">
           <h2 className="text-2xl font-bold">Admin Panel</h2>
@@ -74,7 +74,7 @@ export default function AdminSidebar() {
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 md:hidden z-20"
+          className="fixed inset-0 bg-black/50 lg:hidden z-20"
           onClick={() => setIsOpen(false)}
         ></div>
       )}

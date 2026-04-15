@@ -79,27 +79,27 @@ export default function AdminCandidatesPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       <AdminSidebar />
 
-      <main className="flex-1 overflow-auto md:ml-0">
+      <main className="flex-1 overflow-auto lg:ml-0">
         {/* Header */}
         <div className="bg-white border-b border-border sticky top-0 z-20">
-          <div className="px-6 py-4">
+          <div className="px-4 sm:px-6 py-4">
             <h1 className="text-3xl font-bold text-foreground">Candidates</h1>
             <p className="text-muted-foreground">Manage and review all candidates</p>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-6">
           {message && (
             <Card className="p-3 text-sm text-muted-foreground">{message}</Card>
           )}
 
           {/* Search and Filter */}
           <Card className="p-4">
-            <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 flex items-center bg-muted rounded-lg px-4">
                 <Search size={20} className="text-muted-foreground" />
                 <Input

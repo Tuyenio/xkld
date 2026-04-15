@@ -21,22 +21,22 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       <AdminSidebar />
 
-      <main className="flex-1 overflow-auto md:ml-0">
+      <main className="flex-1 overflow-auto lg:ml-0">
         {/* Header */}
         <div className="bg-gradient-to-r from-background to-muted/30 border-b border-border/50 sticky top-0 z-20">
-          <div className="px-6 py-6">
-            <h1 className="text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
+          <div className="px-4 sm:px-6 py-6">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
             <p className="text-muted-foreground">Monitor and manage your recruitment platform</p>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-6">
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
             {stats.map((stat, i) => (
               <GlassCard key={i} className="p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -71,9 +71,9 @@ export default function AdminDashboard() {
             </div>
           </GlassCard>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             {/* Recent Applications */}
-            <GlassCard className="lg:col-span-2 p-6">
+            <GlassCard className="xl:col-span-2 p-4 sm:p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-foreground">Recent Applications</h2>
                 <Link href="/admin/applications">

@@ -57,3 +57,39 @@ export function buildPageMetadata({ title, description, path, noIndex = false }:
     },
   }
 }
+
+type BuildPrivateMetadataInput = {
+  title: string
+  description: string
+  path: string
+}
+
+export function buildPrivateMetadata({ title, description, path }: BuildPrivateMetadataInput): Metadata {
+  const base = buildPageMetadata({
+    title,
+    description,
+    path,
+    noIndex: true,
+  })
+
+  const isProduction = process.env.NODE_ENV === 'production'
+
+  return {
+    ...base,
+    robots: {
+      index: false,
+      follow: false,
+      nocache: true,
+      googleBot: {
+        index: false,
+        follow: false,
+        noimageindex: true,
+        nosnippet: !isProduction,
+        noarchive: true,
+        'max-image-preview': 'none',
+        'max-snippet': isProduction ? 0 : -1,
+        'max-video-preview': -1,
+      },
+    },
+  }
+}

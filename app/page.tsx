@@ -6,8 +6,7 @@ import { PremiumButton } from '@/components/premium-button'
 import { GlassCard } from '@/components/glass-card'
 import { AnimatedCounter } from '@/components/animated-counter'
 import { JobCardPro } from '@/components/job-card-pro'
-import { ParticleBackground } from '@/components/particle-background'
-import { FloatingElements } from '@/components/floating-elements'
+import { DeferredHomeEffects } from '@/components/deferred-home-effects'
 import { SearchBar } from '@/components/search-bar'
 import Link from 'next/link'
 import { ArrowRight, Briefcase, Globe, Users, TrendingUp, CheckCircle2, Star, Play } from 'lucide-react'
@@ -44,8 +43,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <ParticleBackground />
-      <FloatingElements />
+      <DeferredHomeEffects />
 
       <section className="relative overflow-hidden pt-20 md:pt-32 pb-20 md:pb-40">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/3 to-transparent -z-10" />

@@ -115,7 +115,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               <ArrowRight size={16} className="rotate-180" />
               Back to Jobs
             </Link>
-            <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-4 text-sm overflow-x-auto w-full md:w-auto pb-1">
               <a href="#overview" className="text-muted-foreground hover:text-primary">Overview</a>
               <a href="#benefits" className="text-muted-foreground hover:text-primary">Benefits</a>
               <a href="#company" className="text-muted-foreground hover:text-primary">Company</a>
@@ -143,7 +143,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                           {job.type}
                         </span>
                       </div>
-                      <h1 className="text-5xl font-bold text-foreground mb-3">{job.title}</h1>
+                      <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-3">{job.title}</h1>
                       <p className="text-xl text-muted-foreground mb-2">{job.company}</p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -152,7 +152,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <MapPin size={18} className="text-accent" />
                       <span className="text-sm">{job.location}</span>
@@ -303,7 +303,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           <div className="lg:col-span-1">
             {/* Quick Info Card */}
             <ScrollReveal>
-              <GlassCard className="p-6 md:p-8 mb-8 sticky top-24">
+              <GlassCard className="p-6 md:p-8 mb-8 xl:sticky xl:top-24">
                 <h3 className="font-bold text-foreground mb-6 text-lg">Job Details</h3>
                 <div className="space-y-6 mb-6">
                   <div className="p-4 rounded-lg bg-accent/10 border border-accent/20">

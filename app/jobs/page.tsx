@@ -217,10 +217,10 @@ export default function JobsPage() {
 
       <section className="pt-20 pb-12 bg-gradient-to-br from-primary/5 via-accent/3 to-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 text-balance">
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-balance">
             Browse <span className="gradient-text">Premium Jobs</span> in Taiwan
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mb-12">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-12">
             Explore 500+ exclusive opportunities from top Taiwan employers
           </p>
 
@@ -249,7 +249,7 @@ export default function JobsPage() {
               </FilterDrawer>
 
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-48"><SelectValue placeholder="Sort" /></SelectTrigger>
+                <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="Sort" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="newest">Newest</SelectItem>
                   <SelectItem value="highest_salary">Highest Salary</SelectItem>
@@ -257,12 +257,12 @@ export default function JobsPage() {
                 </SelectContent>
               </Select>
 
-              <div className="ml-auto flex gap-2">
-                <PremiumButton variant={viewMode === 'grid' ? 'primary' : 'outline'} size="sm" icon={<LayoutGrid size={16} />} onClick={() => setViewMode('grid')}>
-                  Grid
+              <div className="sm:ml-auto flex gap-2 w-full sm:w-auto">
+                <PremiumButton variant={viewMode === 'grid' ? 'primary' : 'outline'} size="sm" className="flex-1 sm:flex-none" icon={<LayoutGrid size={16} />} onClick={() => setViewMode('grid')}>
+                  <span className="sm:inline">Grid</span>
                 </PremiumButton>
-                <PremiumButton variant={viewMode === 'list' ? 'primary' : 'outline'} size="sm" icon={<List size={16} />} onClick={() => setViewMode('list')}>
-                  List
+                <PremiumButton variant={viewMode === 'list' ? 'primary' : 'outline'} size="sm" className="flex-1 sm:flex-none" icon={<List size={16} />} onClick={() => setViewMode('list')}>
+                  <span className="sm:inline">List</span>
                 </PremiumButton>
               </div>
 
@@ -310,13 +310,13 @@ export default function JobsPage() {
                         />
                       ) : (
                         <div className="card-premium p-5 hover:bg-muted/20 transition-colors">
-                          <div className="flex items-start justify-between gap-4">
-                            <div>
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                            <div className="min-w-0">
                               <h3 className="text-xl font-bold text-foreground">{job.title}</h3>
                               <p className="text-muted-foreground">{job.company} · {job.location}</p>
                               <p className="text-sm text-muted-foreground mt-2">{job.category} · {job.experience} · {job.shift}</p>
                             </div>
-                            <div className="text-right">
+                            <div className="sm:text-right">
                               <p className="text-lg font-bold text-primary">${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}</p>
                               <p className="text-xs text-muted-foreground mt-1">Match {job.matchScore}%</p>
                             </div>
@@ -331,7 +331,7 @@ export default function JobsPage() {
               </div>
 
               <div className="lg:col-span-1">
-                <div className="sticky top-24 space-y-6">
+                <div className="lg:sticky lg:top-24 space-y-6">
                   <div className="card-premium p-6">
                     <h3 className="text-lg font-bold text-foreground mb-4">
                       Saved Jobs ({savedJobs.length})

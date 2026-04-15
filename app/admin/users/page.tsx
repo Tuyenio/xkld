@@ -128,12 +128,12 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       <AdminSidebar />
 
-      <main className="flex-1 overflow-auto md:ml-0">
+      <main className="flex-1 overflow-auto lg:ml-0">
         <div className="bg-gradient-to-r from-background to-muted/30 border-b border-border/50 sticky top-0 z-20">
-          <div className="px-6 py-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="px-4 sm:px-6 py-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="text-4xl font-bold text-foreground mb-1">Users Management</h1>
               <p className="text-muted-foreground">Manage permissions, roles, and account lifecycle.</p>
@@ -148,7 +148,7 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-6">
           <GlassCard className="p-4">
             <div className="flex flex-col md:flex-row gap-3">
               <div className="relative flex-1">
@@ -167,7 +167,7 @@ export default function AdminUsersPage() {
 
           <GlassCard className="p-0 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[860px]">
+              <table className="w-full min-w-[900px]">
                 <thead>
                   <tr className="border-b border-border/70 bg-muted/20">
                     <th className="text-left py-4 px-5 font-semibold text-foreground">User</th>

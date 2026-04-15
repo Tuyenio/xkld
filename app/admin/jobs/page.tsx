@@ -106,13 +106,13 @@ export default function AdminJobsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       <AdminSidebar />
 
-      <main className="flex-1 overflow-auto md:ml-0">
+      <main className="flex-1 overflow-auto lg:ml-0">
         {/* Header */}
         <div className="bg-white border-b border-border sticky top-0 z-20">
-          <div className="px-6 py-4 flex justify-between items-center">
+          <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <div>
               <h1 className="text-3xl font-bold text-foreground">Jobs Management</h1>
               <p className="text-muted-foreground">Manage all job postings</p>
@@ -129,7 +129,7 @@ export default function AdminJobsPage() {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-6">
           {message && (
             <Card className="p-3 text-sm text-muted-foreground">{message}</Card>
           )}
@@ -162,7 +162,7 @@ export default function AdminJobsPage() {
           {/* Jobs Table */}
           <Card className="p-6">
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[760px]">
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left py-3 px-4 font-semibold text-foreground">Job Title</th>

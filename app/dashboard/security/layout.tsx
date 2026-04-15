@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
+import { buildPrivateMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  title: 'Security | XKLD VietDai Dashboard',
+export const metadata: Metadata = buildPrivateMetadata({
+  title: 'Dashboard Security',
   description: 'Manage account security, password policy, and authentication preferences.',
-  alternates: { canonical: '/dashboard/security' },
-}
+  path: '/dashboard/security',
+})
 
 export default function SecurityLayout({ children }: { children: React.ReactNode }) {
   return children

@@ -124,6 +124,19 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  img,
+  svg,
+  video,
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
 }
 
 @layer components {
@@ -288,5 +301,28 @@
 
   .wave {
     animation: wave 2s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .pulse-glow,
+  .float-animate,
+  .fade-in-up,
+  .slide-in-left,
+  .bounce-in,
+  .slide-up,
+  .flicker,
+  .wave,
+  .spin-smooth {
+    animation: none !important;
   }
 }

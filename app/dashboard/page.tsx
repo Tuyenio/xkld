@@ -5,6 +5,12 @@ import Link from 'next/link'
 import { LogOut, User, FileText, Bookmark, Settings, Clock, CheckCircle2, AlertCircle, ArrowRight, Zap, Star, TrendingUp } from 'lucide-react'
 
 export default function DashboardPage() {
+  const statStyles = {
+    accent: { box: 'bg-accent/20 group-hover:bg-accent/30', icon: 'text-accent' },
+    primary: { box: 'bg-primary/20 group-hover:bg-primary/30', icon: 'text-primary' },
+    secondary: { box: 'bg-secondary/20 group-hover:bg-secondary/30', icon: 'text-secondary' },
+  } as const
+
   const userData = {
     name: 'Nguyễn Văn Nam',
     email: 'nguyenvannam@email.com',
@@ -84,7 +90,7 @@ export default function DashboardPage() {
             </div>
             <h1 className="text-xl font-bold text-foreground hidden md:block">Dashboard</h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <PremiumButton variant="outline" size="sm" icon={<Settings size={16} />}>
               Settings
             </PremiumButton>
@@ -96,9 +102,9 @@ export default function DashboardPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-4">
+          <div className="xl:col-span-1 space-y-4">
             {/* Profile Card */}
             <ScrollReveal>
               <GlassCard className="p-8 text-center">
@@ -163,9 +169,9 @@ export default function DashboardPage() {
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className="xl:col-span-3 space-y-6">
             {/* Stats Overview */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {[
                 { label: 'Applications', value: applications.length, icon: FileText, color: 'accent' },
                 { label: 'Saved Jobs', value: savedJobs.length, icon: Bookmark, color: 'primary' },
@@ -173,8 +179,8 @@ export default function DashboardPage() {
               ].map((stat, i) => (
                 <ScrollReveal key={i} delay={i * 0.1}>
                   <GlassCard className="p-4 text-center group hover:shadow-xl transition-all">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-3 bg-${stat.color}/20 group-hover:bg-${stat.color}/30`}>
-                      <stat.icon size={20} className={`text-${stat.color}`} />
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-3 ${statStyles[stat.color as keyof typeof statStyles].box}`}>
+                      <stat.icon size={20} className={statStyles[stat.color as keyof typeof statStyles].icon} />
                     </div>
                     <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                     <p className="text-xs text-muted-foreground">{stat.label}</p>
@@ -185,7 +191,7 @@ export default function DashboardPage() {
 
             {/* Applications Section */}
             <div>
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
                     <TrendingUp size={24} className="text-accent" />
@@ -220,7 +226,7 @@ export default function DashboardPage() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                           <span className={`text-xs font-bold px-3 py-1.5 rounded-full border ${
                             app.status === 'Interview' ? 'bg-blue-500/20 text-blue-600 border-blue-500/30' :
                             app.status === 'Under Review' ? 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30' :
