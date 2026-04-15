@@ -120,8 +120,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       Apply Now
                     </PremiumButton>
                   </Link>
-                  <PremiumButton variant="outline" size="lg" icon={<Bookmark size={18} />} />
-                  <PremiumButton variant="outline" size="lg" icon={<Share2 size={18} />} />
+                  <PremiumButton variant="outline" size="lg" icon={<Bookmark size={18} />}>
+                    Save
+                  </PremiumButton>
+                  <PremiumButton variant="outline" size="lg" icon={<Share2 size={18} />}>
+                    Share
+                  </PremiumButton>
                 </div>
               </GlassCard>
             </ScrollReveal>
