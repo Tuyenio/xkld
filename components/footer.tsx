@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Facebook, Linkedin, Mail, Phone } from 'lucide-react'
+import { BrandLogo } from '@/components/brand-logo'
 
 export default function Footer() {
   return (
@@ -10,11 +11,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center">
-                <span className="text-primary font-bold text-lg">xkld</span>
-              </div>
-              <span className="font-bold">XKLD VietDai</span>
+            <div className="mb-4">
+              <BrandLogo compact className="text-primary-foreground" textClassName="text-primary-foreground" />
             </div>
             <p className="text-sm opacity-90">
               Connecting Vietnamese professionals with premium opportunities in Taiwan.

@@ -15,6 +15,12 @@ import Link from 'next/link'
 import { LayoutGrid, List, SlidersHorizontal, X } from 'lucide-react'
 import { jobRecords } from '@/lib/mock-data'
 
+const salaryNumberFormatter = new Intl.NumberFormat('en-US')
+
+const formatSalaryRange = (min: number, max: number) => {
+  return `$${salaryNumberFormatter.format(min)} - $${salaryNumberFormatter.format(max)}`
+}
+
 export default function JobsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
@@ -296,7 +302,7 @@ export default function JobsPage() {
                           title={job.title}
                           company={job.company}
                           location={job.location}
-                          salary={`$${job.salaryMin.toLocaleString()} - $${job.salaryMax.toLocaleString()}`}
+                          salary={formatSalaryRange(job.salaryMin, job.salaryMax)}
                           tags={job.tags}
                           featured={job.featured}
                           isSaved={savedJobs.includes(job.id)}
@@ -317,7 +323,7 @@ export default function JobsPage() {
                               <p className="text-sm text-muted-foreground mt-2">{job.category} · {job.experience} · {job.shift}</p>
                             </div>
                             <div className="sm:text-right">
-                              <p className="text-lg font-bold text-primary">${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}</p>
+                              <p className="text-lg font-bold text-primary">{formatSalaryRange(job.salaryMin, job.salaryMax)}</p>
                               <p className="text-xs text-muted-foreground mt-1">Match {job.matchScore}%</p>
                             </div>
                           </div>

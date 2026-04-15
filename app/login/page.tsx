@@ -6,6 +6,7 @@ import { PremiumButton } from '@/components/premium-button'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { Eye, EyeOff, CheckCircle2 } from 'lucide-react'
+import { BrandLogo } from '@/components/brand-logo'
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -37,11 +38,8 @@ export default function LoginPage() {
 
           {/* Logo */}
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center backdrop-blur-md border border-accent/30">
-                <span className="text-2xl font-bold">xkld</span>
-              </div>
-              <h2 className="text-2xl font-bold">XKLD VietDai</h2>
+            <div className="mb-8">
+              <BrandLogo className="text-primary-foreground" textClassName="text-2xl text-primary-foreground" />
             </div>
           </div>
 
@@ -78,11 +76,8 @@ export default function LoginPage() {
           <div className="w-full max-w-md mx-auto">
             {/* Logo for Mobile */}
             <div className="lg:hidden mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-white font-bold">
-                  xkld
-                </div>
-                <h2 className="text-xl font-bold text-foreground">XKLD VietDai</h2>
+              <div className="mb-4">
+                <BrandLogo compact textClassName="text-xl" />
               </div>
             </div>
 

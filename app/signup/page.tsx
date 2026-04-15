@@ -6,6 +6,7 @@ import { PremiumButton } from '@/components/premium-button'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { Eye, EyeOff, Zap } from 'lucide-react'
+import { BrandLogo } from '@/components/brand-logo'
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -45,11 +46,8 @@ export default function SignUpPage() {
         <div className="w-full max-w-2xl">
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center text-white font-bold shadow-premium">
-                xkld
-              </div>
-              <h1 className="text-3xl font-bold gradient-text">XKLD VietDai</h1>
+            <div className="mb-6 flex justify-center">
+              <BrandLogo textClassName="text-3xl gradient-text" />
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4 text-balance">
               Join 1000+ {step === 1 ? 'Professionals' : 'Successful'} in Taiwan

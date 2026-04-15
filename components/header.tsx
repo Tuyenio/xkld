@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { PremiumButton } from './premium-button'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { BrandLogo } from '@/components/brand-logo'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -39,12 +40,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center group-hover:shadow-glow transition-all">
-              <span className="text-white font-bold text-lg">xkld</span>
-            </div>
-            <span className="text-xl font-bold gradient-text hidden sm:inline">XKLD VietDai</span>
-          </Link>
+          <BrandLogo className="group" textClassName="hidden sm:inline" />
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">

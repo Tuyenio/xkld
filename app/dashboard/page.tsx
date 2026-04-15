@@ -3,6 +3,7 @@ import { PremiumButton } from '@/components/premium-button'
 import { ScrollReveal } from '@/components/scroll-reveal'
 import Link from 'next/link'
 import { LogOut, User, FileText, Bookmark, Settings, Clock, CheckCircle2, ArrowRight, Zap, Star, TrendingUp } from 'lucide-react'
+import { BrandLogo } from '@/components/brand-logo'
 
 export default function DashboardPage() {
   const statStyles = {
@@ -70,9 +71,7 @@ export default function DashboardPage() {
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-white font-bold">
-              xkld
-            </div>
+            <BrandLogo compact textClassName="hidden" />
             <h1 className="text-xl font-bold text-foreground hidden md:block">Dashboard</h1>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
