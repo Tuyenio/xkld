@@ -21,11 +21,14 @@ export function ParticleBackground() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const isMobile = window.innerWidth < 768
+
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
 
     const particles: Particle[] = []
-    const particleCount = 50
+    const particleCount = prefersReducedMotion ? 0 : isMobile ? 18 : 36
 
     for (let i = 0; i < particleCount; i++) {
       particles.push({
@@ -38,11 +41,16 @@ export function ParticleBackground() {
       })
     }
 
+    let rafId = 0
+
     const animate = () => {
+      if (document.hidden) {
+        rafId = requestAnimationFrame(animate)
+        return
+      }
+
       ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-      const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--color-accent')
 
       particles.forEach((particle) => {
         particle.x += particle.vx
@@ -59,10 +67,10 @@ export function ParticleBackground() {
         ctx.fill()
       })
 
-      requestAnimationFrame(animate)
+      rafId = requestAnimationFrame(animate)
     }
 
-    animate()
+    rafId = requestAnimationFrame(animate)
 
     const handleResize = () => {
       canvas.width = window.innerWidth
@@ -70,7 +78,10 @@ export function ParticleBackground() {
     }
 
     window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      window.cancelAnimationFrame(rafId)
+    }
   }, [])
 
   return (

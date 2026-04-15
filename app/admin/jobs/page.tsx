@@ -1,16 +1,18 @@
 "use client"
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import AdminSidebar from '@/components/admin-sidebar'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Edit2, Trash2, Eye, Plus, Search } from 'lucide-react'
+import { Edit2, Trash2, Eye, Plus, Search, Radio } from 'lucide-react'
 
 export default function AdminJobsPage() {
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [message, setMessage] = useState('')
+  const [pendingJobId, setPendingJobId] = useState<number | null>(null)
+  const [lastSyncedAt, setLastSyncedAt] = useState(() => new Date())
   const [jobs, setJobs] = useState([
     {
       id: 1,
@@ -55,20 +57,52 @@ export default function AdminJobsPage() {
     })
   }, [jobs, query, statusFilter])
 
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setJobs((prev) => {
+        if (prev.length === 0) return prev
+        const idx = Math.floor(Math.random() * prev.length)
+        return prev.map((job, i) => {
+          if (i !== idx) return job
+          return {
+            ...job,
+            applications: job.applications + Math.floor(Math.random() * 2),
+          }
+        })
+      })
+      setLastSyncedAt(new Date())
+    }, 12000)
+
+    return () => window.clearInterval(timer)
+  }, [])
+
   const handleDelete = (id: number) => {
     setJobs((prev) => prev.filter((job) => job.id !== id))
     setMessage(`Removed job #${id}`)
   }
 
   const handleToggleStatus = (id: number) => {
-    setJobs((prev) =>
-      prev.map((job) => {
-        if (job.id !== id) return job
-        const nextStatus = job.status === 'Active' ? 'Closed' : 'Active'
-        return { ...job, status: nextStatus }
-      })
-    )
-    setMessage(`Updated status for job #${id}`)
+    const currentJob = jobs.find((job) => job.id === id)
+    if (!currentJob) return
+
+    const prevStatus = currentJob.status
+    const nextStatus = currentJob.status === 'Active' ? 'Closed' : 'Active'
+
+    setPendingJobId(id)
+    setJobs((prev) => prev.map((job) => (job.id === id ? { ...job, status: nextStatus } : job)))
+    setMessage(`Syncing status for job #${id}...`)
+
+    window.setTimeout(() => {
+      const failed = Math.random() < 0.08
+      if (failed) {
+        setJobs((prev) => prev.map((job) => (job.id === id ? { ...job, status: prevStatus } : job)))
+        setMessage(`Sync failed for job #${id}. Status rolled back.`)
+      } else {
+        setMessage(`Updated status for job #${id}`)
+        setLastSyncedAt(new Date())
+      }
+      setPendingJobId(null)
+    }, 550)
   }
 
   return (
@@ -82,6 +116,10 @@ export default function AdminJobsPage() {
             <div>
               <h1 className="text-3xl font-bold text-foreground">Jobs Management</h1>
               <p className="text-muted-foreground">Manage all job postings</p>
+              <p className="text-xs text-muted-foreground mt-1 inline-flex items-center gap-1">
+                <Radio size={12} className="text-emerald-500" />
+                Live sync · {lastSyncedAt.toLocaleTimeString()}
+              </p>
             </div>
             <Button className="gap-2">
               <Plus size={20} />
@@ -162,6 +200,7 @@ export default function AdminJobsPage() {
                             className="p-2 hover:bg-muted rounded-lg transition-colors"
                             title="Edit"
                             onClick={() => handleToggleStatus(job.id)}
+                            disabled={pendingJobId === job.id}
                           >
                             <Edit2 size={18} className="text-muted-foreground hover:text-foreground" />
                           </button>

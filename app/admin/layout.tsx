@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
+import { buildPageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  title: 'Admin Console | XKLD VietDai',
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Admin Console',
   description: 'Manage jobs, applications, candidates, and editorial operations from the admin console.',
-  alternates: { canonical: '/admin' },
-}
+  path: '/admin',
+  noIndex: true,
+})
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return children

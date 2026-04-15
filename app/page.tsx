@@ -1,26 +1,44 @@
 import type { Metadata } from 'next'
+import dynamic from 'next/dynamic'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
 import { PremiumButton } from '@/components/premium-button'
 import { GlassCard } from '@/components/glass-card'
 import { AnimatedCounter } from '@/components/animated-counter'
 import { JobCardPro } from '@/components/job-card-pro'
-import { TestimonialCarousel } from '@/components/testimonial-carousel'
-import { FAQAccordion } from '@/components/faq-accordion'
-import { ProcessTimeline } from '@/components/process-timeline'
-import { LogoMarquee } from '@/components/logo-marquee'
 import { ParticleBackground } from '@/components/particle-background'
 import { FloatingElements } from '@/components/floating-elements'
 import { SearchBar } from '@/components/search-bar'
 import Link from 'next/link'
 import { ArrowRight, Briefcase, Globe, Users, TrendingUp, CheckCircle2, Star, Play } from 'lucide-react'
+import { buildPageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  title: 'Home | XKLD VietDai',
+const LogoMarquee = dynamic(
+  () => import('@/components/logo-marquee').then((mod) => mod.LogoMarquee),
+  { loading: () => <div className="h-20 w-full rounded-xl bg-muted/40 animate-pulse" /> }
+)
+
+const ProcessTimeline = dynamic(
+  () => import('@/components/process-timeline').then((mod) => mod.ProcessTimeline),
+  { loading: () => <div className="h-[360px] w-full rounded-2xl bg-muted/40 animate-pulse" /> }
+)
+
+const TestimonialCarousel = dynamic(
+  () => import('@/components/testimonial-carousel').then((mod) => mod.TestimonialCarousel),
+  { loading: () => <div className="h-[480px] w-full rounded-2xl bg-muted/40 animate-pulse" /> }
+)
+
+const FAQAccordion = dynamic(
+  () => import('@/components/faq-accordion').then((mod) => mod.FAQAccordion),
+  { loading: () => <div className="h-[280px] w-full rounded-2xl bg-muted/40 animate-pulse" /> }
+)
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Home',
   description:
     'Discover premium Taiwan jobs for Vietnamese professionals with high-conversion guidance and trusted employer network.',
-  alternates: { canonical: '/' },
-}
+  path: '/',
+})
 
 export default function Home() {
   return (

@@ -1,13 +1,13 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import AdminSidebar from '@/components/admin-sidebar'
 import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { PremiumModal } from '@/components/premium-modal'
-import { Search, UserPlus, Shield, Mail, Phone } from 'lucide-react'
+import { Search, UserPlus, Shield, Mail, Phone, Radio } from 'lucide-react'
 
 const initialUsers = [
   {
@@ -62,6 +62,8 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState(initialUsers)
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
+  const [pendingUserId, setPendingUserId] = useState<number | null>(null)
+  const [lastSyncedAt, setLastSyncedAt] = useState(() => new Date())
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -72,13 +74,41 @@ export default function AdminUsersPage() {
     })
   }, [users, query, roleFilter])
 
-  const toggleStatus = (id: number) => {
-    setUsers((prev) =>
-      prev.map((user) => {
-        if (user.id !== id) return user
-        return { ...user, status: user.status === 'active' ? 'inactive' : 'active' }
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setUsers((prev) => {
+        if (prev.length === 0) return prev
+        const idx = Math.floor(Math.random() * prev.length)
+        return prev.map((user, i) => {
+          if (i !== idx) return user
+          if (user.status === 'pending') return { ...user, status: 'active' }
+          return user
+        })
       })
-    )
+      setLastSyncedAt(new Date())
+    }, 15000)
+
+    return () => window.clearInterval(timer)
+  }, [])
+
+  const toggleStatus = (id: number) => {
+    const current = users.find((user) => user.id === id)
+    if (!current) return
+
+    const prevStatus = current.status
+    const nextStatus = current.status === 'active' ? 'inactive' : 'active'
+    setPendingUserId(id)
+    setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, status: nextStatus } : user)))
+
+    window.setTimeout(() => {
+      const failed = Math.random() < 0.08
+      if (failed) {
+        setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, status: prevStatus } : user)))
+      } else {
+        setLastSyncedAt(new Date())
+      }
+      setPendingUserId(null)
+    }, 500)
   }
 
   const toggleVerify = (id: number) => {
@@ -107,6 +137,10 @@ export default function AdminUsersPage() {
             <div>
               <h1 className="text-4xl font-bold text-foreground mb-1">Users Management</h1>
               <p className="text-muted-foreground">Manage permissions, roles, and account lifecycle.</p>
+              <p className="text-xs text-muted-foreground mt-1 inline-flex items-center gap-1">
+                <Radio size={12} className="text-emerald-500" />
+                Live sync · {lastSyncedAt.toLocaleTimeString()}
+              </p>
             </div>
             <PremiumButton variant="primary" icon={<UserPlus size={18} />}>
               Add New User
@@ -200,7 +234,7 @@ export default function AdminUsersPage() {
                           <PremiumButton variant="ghost" size="sm" onClick={() => toggleVerify(user.id)}>
                             {user.verified ? 'Unverify' : 'Verify'}
                           </PremiumButton>
-                          <PremiumButton variant="ghost" size="sm" onClick={() => toggleStatus(user.id)}>
+                          <PremiumButton variant="ghost" size="sm" onClick={() => toggleStatus(user.id)} disabled={pendingUserId === user.id}>
                             {user.status === 'active' ? 'Ban' : 'Unban'}
                           </PremiumButton>
                         </div>

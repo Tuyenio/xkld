@@ -1,15 +1,17 @@
 "use client"
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import AdminSidebar from '@/components/admin-sidebar'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Eye, Archive, Search, Check, X } from 'lucide-react'
+import { Eye, Archive, Search, Check, X, Radio } from 'lucide-react'
 
 export default function AdminApplicationsPage() {
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [message, setMessage] = useState('')
+  const [pendingApplicationId, setPendingApplicationId] = useState<number | null>(null)
+  const [lastSyncedAt, setLastSyncedAt] = useState(() => new Date())
   const [applications, setApplications] = useState([
     {
       id: 1,
@@ -62,6 +64,25 @@ export default function AdminApplicationsPage() {
     })
   }, [applications, query, statusFilter])
 
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setApplications((prev) => {
+        if (prev.length === 0) return prev
+        const idx = Math.floor(Math.random() * prev.length)
+        return prev.map((app, i) => {
+          if (i !== idx) return app
+          if (app.score == null) return app
+          const delta = Math.random() > 0.5 ? 1 : -1
+          const nextScore = Math.max(60, Math.min(99, app.score + delta))
+          return { ...app, score: nextScore }
+        })
+      })
+      setLastSyncedAt(new Date())
+    }, 10000)
+
+    return () => window.clearInterval(timer)
+  }, [])
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Interview':
@@ -78,8 +99,25 @@ export default function AdminApplicationsPage() {
   }
 
   const updateStatus = (id: number, status: string) => {
+    const current = applications.find((app) => app.id === id)
+    if (!current) return
+
+    const prevStatus = current.status
+    setPendingApplicationId(id)
     setApplications((prev) => prev.map((app) => (app.id === id ? { ...app, status } : app)))
-    setMessage(`Application #${id} updated to ${status}`)
+    setMessage(`Syncing application #${id}...`)
+
+    window.setTimeout(() => {
+      const failed = Math.random() < 0.08
+      if (failed) {
+        setApplications((prev) => prev.map((app) => (app.id === id ? { ...app, status: prevStatus } : app)))
+        setMessage(`Sync failed for application #${id}. Rolled back.`)
+      } else {
+        setMessage(`Application #${id} updated to ${status}`)
+        setLastSyncedAt(new Date())
+      }
+      setPendingApplicationId(null)
+    }, 500)
   }
 
   const archiveApplication = (id: number) => {
@@ -97,6 +135,10 @@ export default function AdminApplicationsPage() {
           <div className="px-6 py-4">
             <h1 className="text-3xl font-bold text-foreground">Applications</h1>
             <p className="text-muted-foreground">Review and manage job applications</p>
+            <p className="text-xs text-muted-foreground mt-1 inline-flex items-center gap-1">
+              <Radio size={12} className="text-emerald-500" />
+              Live sync · {lastSyncedAt.toLocaleTimeString()}
+            </p>
           </div>
         </div>
 
@@ -183,6 +225,7 @@ export default function AdminApplicationsPage() {
                             className="p-2 hover:bg-green-50 rounded-lg transition-colors"
                             title="Approve"
                             onClick={() => updateStatus(app.id, 'Interview')}
+                            disabled={pendingApplicationId === app.id}
                           >
                             <Check size={18} className="text-green-600 hover:text-green-700" />
                           </button>
@@ -190,6 +233,7 @@ export default function AdminApplicationsPage() {
                             className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                             title="Reject"
                             onClick={() => updateStatus(app.id, 'Rejected')}
+                            disabled={pendingApplicationId === app.id}
                           >
                             <X size={18} className="text-red-500 hover:text-red-700" />
                           </button>
