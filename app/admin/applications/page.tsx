@@ -1,11 +1,16 @@
+"use client"
+
+import { useMemo, useState } from 'react'
 import AdminSidebar from '@/components/admin-sidebar'
 import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Eye, Archive, Trash2, Search, Check, X } from 'lucide-react'
+import { Eye, Archive, Search, Check, X } from 'lucide-react'
 
 export default function AdminApplicationsPage() {
-  const applications = [
+  const [query, setQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('All')
+  const [message, setMessage] = useState('')
+  const [applications, setApplications] = useState([
     {
       id: 1,
       candidate: 'Nguyễn Văn Nam',
@@ -46,7 +51,16 @@ export default function AdminApplicationsPage() {
       appliedDate: '2024-03-14',
       score: null,
     },
-  ]
+  ])
+
+  const filteredApplications = useMemo(() => {
+    return applications.filter((app) => {
+      const matchesStatus = statusFilter === 'All' || app.status === statusFilter
+      const text = `${app.candidate} ${app.job}`.toLowerCase()
+      const matchesQuery = text.includes(query.toLowerCase())
+      return matchesStatus && matchesQuery
+    })
+  }, [applications, query, statusFilter])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -61,6 +75,16 @@ export default function AdminApplicationsPage() {
       default:
         return 'bg-gray-100 text-gray-700'
     }
+  }
+
+  const updateStatus = (id: number, status: string) => {
+    setApplications((prev) => prev.map((app) => (app.id === id ? { ...app, status } : app)))
+    setMessage(`Application #${id} updated to ${status}`)
+  }
+
+  const archiveApplication = (id: number) => {
+    setApplications((prev) => prev.filter((app) => app.id !== id))
+    setMessage(`Application #${id} archived`)
   }
 
   return (
@@ -78,6 +102,10 @@ export default function AdminApplicationsPage() {
 
         {/* Content */}
         <div className="p-6 space-y-6">
+          {message && (
+            <Card className="p-3 text-sm text-muted-foreground">{message}</Card>
+          )}
+
           {/* Search and Filter */}
           <Card className="p-4">
             <div className="flex gap-4">
@@ -86,14 +114,20 @@ export default function AdminApplicationsPage() {
                 <Input
                   placeholder="Search applications..."
                   className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                 />
               </div>
-              <select className="px-4 py-2 border border-border rounded-lg bg-white">
-                <option>All Status</option>
-                <option>New</option>
-                <option>Under Review</option>
-                <option>Interview</option>
-                <option>Rejected</option>
+              <select
+                className="px-4 py-2 border border-border rounded-lg bg-white"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="All">All Status</option>
+                <option value="New">New</option>
+                <option value="Under Review">Under Review</option>
+                <option value="Interview">Interview</option>
+                <option value="Rejected">Rejected</option>
               </select>
             </div>
           </Card>
@@ -113,7 +147,7 @@ export default function AdminApplicationsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {applications.map((app) => (
+                  {filteredApplications.map((app) => (
                     <tr key={app.id} className="border-b border-border hover:bg-muted/50 transition-colors">
                       <td className="py-4 px-4">
                         <p className="font-semibold text-foreground">{app.candidate}</p>
@@ -145,19 +179,38 @@ export default function AdminApplicationsPage() {
                           <button className="p-2 hover:bg-muted rounded-lg transition-colors" title="View">
                             <Eye size={18} className="text-muted-foreground hover:text-foreground" />
                           </button>
-                          <button className="p-2 hover:bg-green-50 rounded-lg transition-colors" title="Approve">
+                          <button
+                            className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+                            title="Approve"
+                            onClick={() => updateStatus(app.id, 'Interview')}
+                          >
                             <Check size={18} className="text-green-600 hover:text-green-700" />
                           </button>
-                          <button className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="Reject">
+                          <button
+                            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Reject"
+                            onClick={() => updateStatus(app.id, 'Rejected')}
+                          >
                             <X size={18} className="text-red-500 hover:text-red-700" />
                           </button>
-                          <button className="p-2 hover:bg-muted rounded-lg transition-colors" title="Archive">
+                          <button
+                            className="p-2 hover:bg-muted rounded-lg transition-colors"
+                            title="Archive"
+                            onClick={() => archiveApplication(app.id)}
+                          >
                             <Archive size={18} className="text-muted-foreground hover:text-foreground" />
                           </button>
                         </div>
                       </td>
                     </tr>
                   ))}
+                  {filteredApplications.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="py-10 text-center text-muted-foreground">
+                        No applications match your filters.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

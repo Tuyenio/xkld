@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
 import { PremiumButton } from '@/components/premium-button'
@@ -10,6 +11,13 @@ import { ProcessTimeline } from '@/components/process-timeline'
 import { LogoMarquee } from '@/components/logo-marquee'
 import Link from 'next/link'
 import { ArrowRight, Briefcase, Globe, Users, TrendingUp, CheckCircle2, Star, Play } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Home | XKLD VietDai',
+  description:
+    'Discover premium Taiwan jobs for Vietnamese professionals with high-conversion guidance and trusted employer network.',
+  alternates: { canonical: '/' },
+}
 
 export default function Home() {
   return (

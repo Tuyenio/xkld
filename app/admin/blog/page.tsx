@@ -1,3 +1,6 @@
+"use client"
+
+import { useMemo, useState } from 'react'
 import AdminSidebar from '@/components/admin-sidebar'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -5,7 +8,10 @@ import { Edit2, Trash2, Eye, Plus, Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
 export default function AdminBlogPage() {
-  const posts = [
+  const [query, setQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('All')
+  const [message, setMessage] = useState('')
+  const [posts, setPosts] = useState([
     {
       id: 1,
       title: 'Top 10 Tips to Ace Your Taiwan Job Interview',
@@ -30,7 +36,33 @@ export default function AdminBlogPage() {
       views: 0,
       published: '2024-03-05',
     },
-  ]
+  ])
+
+  const filteredPosts = useMemo(() => {
+    return posts.filter((post) => {
+      const matchesStatus = statusFilter === 'All' || post.status === statusFilter
+      const text = `${post.title} ${post.author}`.toLowerCase()
+      const matchesQuery = text.includes(query.toLowerCase())
+      return matchesStatus && matchesQuery
+    })
+  }, [posts, query, statusFilter])
+
+  const togglePublish = (id: number) => {
+    setPosts((prev) =>
+      prev.map((post) => {
+        if (post.id !== id) return post
+        const nextStatus = post.status === 'Published' ? 'Draft' : 'Published'
+        const nextViews = nextStatus === 'Published' && post.views === 0 ? 100 : post.views
+        return { ...post, status: nextStatus, views: nextViews }
+      })
+    )
+    setMessage(`Updated publish status for post #${id}`)
+  }
+
+  const deletePost = (id: number) => {
+    setPosts((prev) => prev.filter((post) => post.id !== id))
+    setMessage(`Removed post #${id}`)
+  }
 
   return (
     <div className="flex h-screen bg-background">
@@ -53,14 +85,31 @@ export default function AdminBlogPage() {
 
         {/* Content */}
         <div className="p-6 space-y-6">
+          {message && (
+            <Card className="p-3 text-sm text-muted-foreground">{message}</Card>
+          )}
+
           {/* Search */}
           <Card className="p-4">
-            <div className="flex items-center bg-muted rounded-lg px-4">
-              <Search size={20} className="text-muted-foreground" />
-              <Input
-                placeholder="Search posts..."
-                className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 flex items-center bg-muted rounded-lg px-4">
+                <Search size={20} className="text-muted-foreground" />
+                <Input
+                  placeholder="Search posts..."
+                  className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
+              <select
+                className="px-4 py-2 border border-border rounded-lg bg-white"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="All">All Status</option>
+                <option value="Published">Published</option>
+                <option value="Draft">Draft</option>
+              </select>
             </div>
           </Card>
 
@@ -79,7 +128,7 @@ export default function AdminBlogPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {posts.map((post) => (
+                  {filteredPosts.map((post) => (
                     <tr key={post.id} className="border-b border-border hover:bg-muted/50 transition-colors">
                       <td className="py-4 px-4">
                         <p className="font-semibold text-foreground">{post.title}</p>
@@ -99,16 +148,31 @@ export default function AdminBlogPage() {
                           <button className="p-2 hover:bg-muted rounded-lg transition-colors" title="View">
                             <Eye size={18} className="text-muted-foreground hover:text-foreground" />
                           </button>
-                          <button className="p-2 hover:bg-muted rounded-lg transition-colors" title="Edit">
+                          <button
+                            className="p-2 hover:bg-muted rounded-lg transition-colors"
+                            title="Edit"
+                            onClick={() => togglePublish(post.id)}
+                          >
                             <Edit2 size={18} className="text-muted-foreground hover:text-foreground" />
                           </button>
-                          <button className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                          <button
+                            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete"
+                            onClick={() => deletePost(post.id)}
+                          >
                             <Trash2 size={18} className="text-red-500 hover:text-red-700" />
                           </button>
                         </div>
                       </td>
                     </tr>
                   ))}
+                  {filteredPosts.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="py-10 text-center text-muted-foreground">
+                        No posts match your filters.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

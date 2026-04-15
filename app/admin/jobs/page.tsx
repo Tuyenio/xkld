@@ -1,3 +1,6 @@
+"use client"
+
+import { useMemo, useState } from 'react'
 import AdminSidebar from '@/components/admin-sidebar'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -5,7 +8,10 @@ import { Input } from '@/components/ui/input'
 import { Edit2, Trash2, Eye, Plus, Search } from 'lucide-react'
 
 export default function AdminJobsPage() {
-  const jobs = [
+  const [query, setQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('All')
+  const [message, setMessage] = useState('')
+  const [jobs, setJobs] = useState([
     {
       id: 1,
       title: 'Senior Software Engineer',
@@ -38,7 +44,32 @@ export default function AdminJobsPage() {
       applications: 34,
       posted: '2024-02-15',
     },
-  ]
+  ])
+
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((job) => {
+      const matchesStatus = statusFilter === 'All' || job.status === statusFilter
+      const text = `${job.title} ${job.company}`.toLowerCase()
+      const matchesQuery = text.includes(query.toLowerCase())
+      return matchesStatus && matchesQuery
+    })
+  }, [jobs, query, statusFilter])
+
+  const handleDelete = (id: number) => {
+    setJobs((prev) => prev.filter((job) => job.id !== id))
+    setMessage(`Removed job #${id}`)
+  }
+
+  const handleToggleStatus = (id: number) => {
+    setJobs((prev) =>
+      prev.map((job) => {
+        if (job.id !== id) return job
+        const nextStatus = job.status === 'Active' ? 'Closed' : 'Active'
+        return { ...job, status: nextStatus }
+      })
+    )
+    setMessage(`Updated status for job #${id}`)
+  }
 
   return (
     <div className="flex h-screen bg-background">
@@ -61,6 +92,10 @@ export default function AdminJobsPage() {
 
         {/* Content */}
         <div className="p-6 space-y-6">
+          {message && (
+            <Card className="p-3 text-sm text-muted-foreground">{message}</Card>
+          )}
+
           {/* Search and Filter */}
           <Card className="p-4">
             <div className="flex gap-4">
@@ -69,13 +104,19 @@ export default function AdminJobsPage() {
                 <Input
                   placeholder="Search jobs..."
                   className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                 />
               </div>
-              <select className="px-4 py-2 border border-border rounded-lg bg-white">
-                <option>All Status</option>
-                <option>Active</option>
-                <option>Draft</option>
-                <option>Closed</option>
+              <select
+                className="px-4 py-2 border border-border rounded-lg bg-white"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="All">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Draft">Draft</option>
+                <option value="Closed">Closed</option>
               </select>
             </div>
           </Card>
@@ -95,7 +136,7 @@ export default function AdminJobsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {jobs.map((job) => (
+                  {filteredJobs.map((job) => (
                     <tr key={job.id} className="border-b border-border hover:bg-muted/50 transition-colors">
                       <td className="py-4 px-4">
                         <p className="font-semibold text-foreground">{job.title}</p>
@@ -117,16 +158,31 @@ export default function AdminJobsPage() {
                           <button className="p-2 hover:bg-muted rounded-lg transition-colors" title="View">
                             <Eye size={18} className="text-muted-foreground hover:text-foreground" />
                           </button>
-                          <button className="p-2 hover:bg-muted rounded-lg transition-colors" title="Edit">
+                          <button
+                            className="p-2 hover:bg-muted rounded-lg transition-colors"
+                            title="Edit"
+                            onClick={() => handleToggleStatus(job.id)}
+                          >
                             <Edit2 size={18} className="text-muted-foreground hover:text-foreground" />
                           </button>
-                          <button className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                          <button
+                            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete"
+                            onClick={() => handleDelete(job.id)}
+                          >
                             <Trash2 size={18} className="text-red-500 hover:text-red-700" />
                           </button>
                         </div>
                       </td>
                     </tr>
                   ))}
+                  {filteredJobs.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="py-10 text-center text-muted-foreground">
+                        No jobs match your filters.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

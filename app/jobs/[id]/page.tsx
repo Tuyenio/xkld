@@ -3,11 +3,17 @@ import Footer from '@/components/footer'
 import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { ScrollReveal } from '@/components/scroll-reveal'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin, Briefcase, DollarSign, Users, CheckCircle2, Share2, Bookmark, ArrowRight, Star, Clock, TrendingUp } from 'lucide-react'
 
 export default function JobDetailPage({ params }: { params: { id: string } }) {
   const jobId = params.id
+  const validJobIds = new Set(['1', '2', '3', '4', '5', '6'])
+
+  if (!validJobIds.has(jobId)) {
+    notFound()
+  }
 
   // Sample job data
   const job = {

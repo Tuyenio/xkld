@@ -1,3 +1,6 @@
+"use client"
+
+import { useMemo, useState } from 'react'
 import AdminSidebar from '@/components/admin-sidebar'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -5,7 +8,10 @@ import { Input } from '@/components/ui/input'
 import { Mail, Phone, Eye, Trash2, Search, Download } from 'lucide-react'
 
 export default function AdminCandidatesPage() {
-  const candidates = [
+  const [query, setQuery] = useState('')
+  const [locationFilter, setLocationFilter] = useState('All')
+  const [message, setMessage] = useState('')
+  const [candidates, setCandidates] = useState([
     {
       id: 1,
       name: 'Nguyễn Văn Nam',
@@ -46,7 +52,31 @@ export default function AdminCandidatesPage() {
       location: 'Ho Chi Minh City',
       applications: 2,
     },
-  ]
+  ])
+
+  const locations = useMemo(
+    () => ['All', ...new Set(candidates.map((candidate) => candidate.location))],
+    [candidates]
+  )
+
+  const filteredCandidates = useMemo(() => {
+    return candidates.filter((candidate) => {
+      const matchesLocation = locationFilter === 'All' || candidate.location === locationFilter
+      const text = `${candidate.name} ${candidate.email} ${candidate.jobTitle}`.toLowerCase()
+      const matchesQuery = text.includes(query.toLowerCase())
+      return matchesLocation && matchesQuery
+    })
+  }, [candidates, query, locationFilter])
+
+  const removeCandidate = (id: number) => {
+    setCandidates((prev) => prev.filter((candidate) => candidate.id !== id))
+    setMessage(`Removed candidate #${id}`)
+  }
+
+  const exportCurrentView = () => {
+    const exportedNames = filteredCandidates.map((candidate) => candidate.name).join(', ')
+    setMessage(exportedNames ? `Exported: ${exportedNames}` : 'No candidate data to export')
+  }
 
   return (
     <div className="flex h-screen bg-background">
@@ -63,6 +93,10 @@ export default function AdminCandidatesPage() {
 
         {/* Content */}
         <div className="p-6 space-y-6">
+          {message && (
+            <Card className="p-3 text-sm text-muted-foreground">{message}</Card>
+          )}
+
           {/* Search and Filter */}
           <Card className="p-4">
             <div className="flex gap-4">
@@ -71,9 +105,22 @@ export default function AdminCandidatesPage() {
                 <Input
                   placeholder="Search candidates..."
                   className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                 />
               </div>
-              <Button variant="outline" className="gap-2">
+              <select
+                className="px-4 py-2 border border-border rounded-lg bg-white"
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+              >
+                {locations.map((location) => (
+                  <option key={location} value={location}>
+                    {location === 'All' ? 'All Locations' : location}
+                  </option>
+                ))}
+              </select>
+              <Button variant="outline" className="gap-2" onClick={exportCurrentView}>
                 <Download size={18} />
                 Export
               </Button>
@@ -82,7 +129,7 @@ export default function AdminCandidatesPage() {
 
           {/* Candidates Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {candidates.map((candidate) => (
+            {filteredCandidates.map((candidate) => (
               <Card key={candidate.id} className="p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -92,7 +139,11 @@ export default function AdminCandidatesPage() {
                     <button className="p-2 hover:bg-muted rounded-lg transition-colors" title="View">
                       <Eye size={18} className="text-muted-foreground hover:text-foreground" />
                     </button>
-                    <button className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                    <button
+                      className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete"
+                      onClick={() => removeCandidate(candidate.id)}
+                    >
                       <Trash2 size={18} className="text-red-500 hover:text-red-700" />
                     </button>
                   </div>
@@ -129,6 +180,11 @@ export default function AdminCandidatesPage() {
               </Card>
             ))}
           </div>
+          {filteredCandidates.length === 0 && (
+            <Card className="p-10 text-center text-muted-foreground">
+              No candidates found for your current filters.
+            </Card>
+          )}
         </div>
       </main>
     </div>
