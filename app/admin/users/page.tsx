@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import AdminSidebar from '@/components/admin-sidebar'
 import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { Input } from '@/components/ui/input'
@@ -76,6 +75,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     const timer = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return
       setUsers((prev) => {
         if (prev.length === 0) return prev
         const idx = Math.floor(Math.random() * prev.length)
@@ -128,10 +128,7 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
-
-      <main className="flex-1 overflow-auto lg:ml-0">
+    <div className="bg-background">
         <div className="bg-gradient-to-r from-background to-muted/30 border-b border-border/50 sticky top-0 z-20">
           <div className="px-4 sm:px-6 py-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
@@ -251,7 +248,6 @@ export default function AdminUsersPage() {
             </div>
           </GlassCard>
         </div>
-      </main>
     </div>
   )
 }

@@ -5,7 +5,7 @@ import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
-import { CheckCircle2, Eye, EyeOff, Zap } from 'lucide-react'
+import { Eye, EyeOff, Zap } from 'lucide-react'
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({

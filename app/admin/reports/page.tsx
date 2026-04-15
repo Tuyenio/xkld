@@ -1,4 +1,3 @@
-import AdminSidebar from '@/components/admin-sidebar'
 import { GlassCard } from '@/components/glass-card'
 import { SectionHeader } from '@/components/section-header'
 import { DataTablePro } from '@/components/data-table-pro'
@@ -10,9 +9,7 @@ const rows = [
 
 export default function AdminReportsPage() {
   return (
-    <div className="flex h-screen bg-background">
-      <AdminSidebar />
-      <main className="flex-1 overflow-auto md:ml-0 p-6">
+    <div className="bg-background p-6">
         <SectionHeader title="Reports" subtitle="Generate and review business performance reports." />
         <GlassCard className="p-4">
           <DataTablePro
@@ -24,7 +21,6 @@ export default function AdminReportsPage() {
             ]}
           />
         </GlassCard>
-      </main>
     </div>
   )
 }

@@ -76,9 +76,14 @@
   --sidebar-ring: oklch(0.78 0.18 50);
 }
 
+.home-deferred-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 900px;
+}
+
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: var(--font-roboto), 'Roboto', 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

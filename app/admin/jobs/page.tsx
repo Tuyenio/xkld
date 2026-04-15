@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useMemo, useState } from 'react'
-import AdminSidebar from '@/components/admin-sidebar'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -59,6 +58,7 @@ export default function AdminJobsPage() {
 
   useEffect(() => {
     const timer = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return
       setJobs((prev) => {
         if (prev.length === 0) return prev
         const idx = Math.floor(Math.random() * prev.length)
@@ -106,10 +106,7 @@ export default function AdminJobsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
-
-      <main className="flex-1 overflow-auto lg:ml-0">
+    <div className="bg-background">
         {/* Header */}
         <div className="bg-white border-b border-border sticky top-0 z-20">
           <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
@@ -227,7 +224,6 @@ export default function AdminJobsPage() {
             </div>
           </Card>
         </div>
-      </main>
     </div>
   )
 }

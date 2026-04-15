@@ -2,7 +2,7 @@ import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { ScrollReveal } from '@/components/scroll-reveal'
 import Link from 'next/link'
-import { LogOut, User, FileText, Bookmark, Settings, Clock, CheckCircle2, AlertCircle, ArrowRight, Zap, Star, TrendingUp } from 'lucide-react'
+import { LogOut, User, FileText, Bookmark, Settings, Clock, CheckCircle2, ArrowRight, Zap, Star, TrendingUp } from 'lucide-react'
 
 export default function DashboardPage() {
   const statStyles = {
@@ -63,21 +63,6 @@ export default function DashboardPage() {
       savedDate: '2024-03-12',
     },
   ]
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Interview':
-        return 'bg-blue-100 text-blue-700'
-      case 'Under Review':
-        return 'bg-yellow-100 text-yellow-700'
-      case 'Rejected':
-        return 'bg-red-100 text-red-700'
-      case 'Accepted':
-        return 'bg-green-100 text-green-700'
-      default:
-        return 'bg-gray-100 text-gray-700'
-    }
-  }
 
   return (
     <div className="min-h-screen bg-background">

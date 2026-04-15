@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Roboto } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import FloatingContactBar from '@/components/floating-contact-bar'
 import { ScrollProgressBar } from '@/components/scroll-progress-bar'
@@ -7,8 +7,12 @@ import { BackToTop } from '@/components/back-to-top'
 import { ToastSystem } from '@/components/toast-system'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const roboto = Roboto({
+  subsets: ['latin', 'vietnamese'],
+  weight: ['300', '400', '500', '700', '900'],
+  display: 'swap',
+  variable: '--font-roboto',
+})
 
 export const metadata: Metadata = {
   title: 'xkld-vietdai | Premium Vietnam to Taiwan Job Portal',
@@ -97,7 +101,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="bg-background">
-      <body className="font-sans antialiased bg-background text-foreground">
+      <body className={`${roboto.variable} font-sans antialiased bg-background text-foreground`}>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <ScrollProgressBar />
         {children}

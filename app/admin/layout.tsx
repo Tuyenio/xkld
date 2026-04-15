@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import AdminSidebar from '@/components/admin-sidebar'
 import { buildPageMetadata } from '@/lib/seo'
 
 export const metadata: Metadata = buildPageMetadata({
@@ -9,5 +10,10 @@ export const metadata: Metadata = buildPageMetadata({
 })
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return children
+  return (
+    <div className="flex min-h-screen bg-background">
+      <AdminSidebar />
+      <main className="min-w-0 flex-1">{children}</main>
+    </div>
+  )
 }

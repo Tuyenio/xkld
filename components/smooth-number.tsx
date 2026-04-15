@@ -18,7 +18,6 @@ export function SmoothNumber({
   const [displayValue, setDisplayValue] = useState(0)
 
   useEffect(() => {
-    let start = 0
     const increment = value / (duration / 16)
     let current = 0
 

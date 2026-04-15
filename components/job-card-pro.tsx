@@ -39,6 +39,7 @@ export function JobCardPro({
 
   return (
     <div
+      data-job-id={id}
       className={cn(
         'card-premium p-6 rounded-2xl group cursor-pointer shadow-lg hover:shadow-xl transition-all',
         featured && 'border-2 border-accent/50'

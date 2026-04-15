@@ -1,13 +1,10 @@
-import AdminSidebar from '@/components/admin-sidebar'
 import { StatsCard } from '@/components/stats-card'
 import { ChartCard } from '@/components/chart-card'
 import { TrendingUp, Users, Briefcase, LineChart } from 'lucide-react'
 
 export default function AdminAnalyticsPage() {
   return (
-    <div className="flex h-screen bg-background">
-      <AdminSidebar />
-      <main className="flex-1 overflow-auto md:ml-0 p-6 space-y-6">
+    <div className="bg-background p-6 space-y-6">
         <h1 className="text-4xl font-bold text-foreground">Analytics</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           <StatsCard title="Conversion Rate" value="24.6%" change="+2.4%" icon={<TrendingUp size={18} className="text-accent" />} />
@@ -20,7 +17,6 @@ export default function AdminAnalyticsPage() {
             Chart area ready for realtime datasource
           </div>
         </ChartCard>
-      </main>
     </div>
   )
 }

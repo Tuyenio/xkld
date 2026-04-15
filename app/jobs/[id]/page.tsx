@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
 import { GlassCard } from '@/components/glass-card'
@@ -6,7 +7,52 @@ import { ScrollReveal } from '@/components/scroll-reveal'
 import { FAQAccordion } from '@/components/faq-accordion'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { MapPin, Briefcase, DollarSign, Users, CheckCircle2, Share2, Bookmark, ArrowRight, Star, Clock, TrendingUp } from 'lucide-react'
+import { MapPin, DollarSign, Users, CheckCircle2, Share2, Bookmark, ArrowRight, Star, Clock, TrendingUp } from 'lucide-react'
+
+const SITE_URL = 'https://xkldvietdai.com'
+
+export function generateMetadata({ params }: { params: { id: string } }): Metadata {
+  const validJobIds = new Set(['1', '2', '3', '4', '5', '6'])
+  if (!validJobIds.has(params.id)) {
+    return {
+      title: 'Job Not Found | XKLD VietDai',
+      description: 'The requested job posting is not available.',
+      robots: { index: false, follow: false },
+    }
+  }
+
+  const title = 'Senior Software Engineer in Taipei | XKLD VietDai'
+  const description = 'Review responsibilities, benefits, and requirements for this Taiwan opportunity and apply now.'
+  const canonical = `/jobs/${params.id}`
+
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: 'website',
+      url: `${SITE_URL}${canonical}`,
+      title,
+      description,
+      siteName: 'XKLD VietDai',
+      images: [
+        {
+          url: `${SITE_URL}/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [`${SITE_URL}/og-image.png`],
+      creator: '@xkldvietdai',
+    },
+  }
+}
 
 export default function JobDetailPage({ params }: { params: { id: string } }) {
   const jobId = params.id

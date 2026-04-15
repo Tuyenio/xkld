@@ -50,7 +50,7 @@ export default function Home() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div className="fade-in-up">
+            <div>
               <div className="inline-block mb-6">
                 <span className="badge-premium">Taiwan's #1 Recruitment Platform</span>
               </div>
@@ -129,7 +129,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-10 border-y border-border/40 bg-background/70 backdrop-blur-sm">
+      <section className="py-10 border-y border-border/40 bg-background/70 backdrop-blur-sm home-deferred-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-sm text-muted-foreground text-center mb-6">Trusted by hiring partners across Taiwan</p>
           <LogoMarquee
@@ -144,7 +144,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 md:py-28 bg-muted/30">
+      <section className="py-20 md:py-28 bg-muted/30 home-deferred-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-balance">
@@ -174,7 +174,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 md:py-28">
+      <section className="py-20 md:py-28 home-deferred-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
             <div>
@@ -203,7 +203,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 md:py-28 bg-gradient-to-br from-primary/5 via-accent/3 to-transparent">
+      <section className="py-20 md:py-28 bg-gradient-to-br from-primary/5 via-accent/3 to-transparent home-deferred-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-balance">
@@ -220,7 +220,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 md:py-28">
+      <section className="py-20 md:py-28 home-deferred-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-4 text-center text-balance">
             Hear from Our <span className="gradient-text">Success Stories</span>
@@ -236,7 +236,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 md:py-28 bg-muted/30">
+      <section className="py-20 md:py-28 bg-muted/30 home-deferred-section">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground text-center mb-10">FAQ</h2>
           <FAQAccordion
@@ -250,7 +250,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 md:py-28 bg-gradient-to-br from-primary to-primary/90">
+      <section className="py-20 md:py-28 bg-gradient-to-br from-primary to-primary/90 home-deferred-section">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-6 text-balance">Ready to Transform Your Career?</h2>
           <p className="text-xl text-primary-foreground/90 mb-10 max-w-2xl mx-auto">

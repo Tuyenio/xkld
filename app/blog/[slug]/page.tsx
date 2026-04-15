@@ -7,6 +7,8 @@ import { PremiumButton } from '@/components/premium-button'
 import { ScrollProgressBar } from '@/components/scroll-progress-bar'
 import { ArrowRight, Calendar, Share2, User } from 'lucide-react'
 
+const SITE_URL = 'https://xkldvietdai.com'
+
 const posts = [
   {
     slug: 'top-10-tips-ace-taiwan-job-interview',
@@ -32,13 +34,39 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     return {
       title: 'Article Not Found | XKLD VietDai',
       description: 'The requested article is not available.',
+      robots: { index: false, follow: false },
     }
   }
 
+  const canonical = `/blog/${post.slug}`
+  const title = `${post.title} | XKLD VietDai Blog`
+
   return {
-    title: `${post.title} | XKLD VietDai Blog`,
+    title,
     description: post.excerpt,
-    alternates: { canonical: `/blog/${post.slug}` },
+    alternates: { canonical },
+    openGraph: {
+      type: 'article',
+      url: `${SITE_URL}${canonical}`,
+      title,
+      description: post.excerpt,
+      siteName: 'XKLD VietDai',
+      images: [
+        {
+          url: `${SITE_URL}/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: post.excerpt,
+      images: [`${SITE_URL}/og-image.png`],
+      creator: '@xkldvietdai',
+    },
   }
 }
 

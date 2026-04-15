@@ -1,9 +1,9 @@
 'use client'
 
-import { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
-interface GlassCardProps {
+interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode
   className?: string
   hover?: boolean
@@ -15,9 +15,11 @@ export function GlassCard({
   className, 
   hover = true,
   glowEffect = false,
+  ...props
 }: GlassCardProps) {
   return (
     <div
+      {...props}
       className={cn(
         'glass rounded-2xl border border-border/50 backdrop-blur-md p-6',
         'transition-all duration-300 shadow-lg',

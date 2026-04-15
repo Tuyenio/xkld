@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useMemo, useState } from 'react'
-import AdminSidebar from '@/components/admin-sidebar'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Eye, Archive, Search, Check, X, Radio } from 'lucide-react'
@@ -66,6 +65,7 @@ export default function AdminApplicationsPage() {
 
   useEffect(() => {
     const timer = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return
       setApplications((prev) => {
         if (prev.length === 0) return prev
         const idx = Math.floor(Math.random() * prev.length)
@@ -126,10 +126,7 @@ export default function AdminApplicationsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
-
-      <main className="flex-1 overflow-auto lg:ml-0">
+    <div className="bg-background">
         {/* Header */}
         <div className="bg-white border-b border-border sticky top-0 z-20">
           <div className="px-4 sm:px-6 py-4">
@@ -260,7 +257,6 @@ export default function AdminApplicationsPage() {
             </div>
           </Card>
         </div>
-      </main>
     </div>
   )
 }

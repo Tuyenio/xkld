@@ -21,21 +21,30 @@ export function DeferredHomeEffects() {
 
   useEffect(() => {
     const run = () => setEnabled(shouldEnableEffects())
+    const win = window as Window & {
+      requestIdleCallback?: (cb: () => void) => number
+      cancelIdleCallback?: (id: number) => void
+    }
 
-    const idleId =
-      'requestIdleCallback' in window
-        ? (window as Window & { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback(run)
-        : window.setTimeout(run, 300)
+    let idleId: number | null = null
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+
+    if (typeof win.requestIdleCallback === 'function') {
+      idleId = win.requestIdleCallback(run)
+    } else {
+      timeoutId = setTimeout(run, 300)
+    }
 
     const handleResize = () => run()
     window.addEventListener('resize', handleResize)
 
     return () => {
       window.removeEventListener('resize', handleResize)
-      if ('cancelIdleCallback' in window) {
-        ;(window as Window & { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId as number)
-      } else {
-        window.clearTimeout(idleId as number)
+      if (idleId !== null && typeof win.cancelIdleCallback === 'function') {
+        win.cancelIdleCallback(idleId)
+      }
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId)
       }
     }
   }, [])

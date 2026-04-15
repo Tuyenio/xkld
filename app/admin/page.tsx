@@ -1,7 +1,5 @@
-import AdminSidebar from '@/components/admin-sidebar'
 import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
-import { AnimatedCounter } from '@/components/animated-counter'
 import { BarChart3, Users, Briefcase, TrendingUp, AlertCircle, Plus, Settings } from 'lucide-react'
 import Link from 'next/link'
 
@@ -21,10 +19,7 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
-
-      <main className="flex-1 overflow-auto lg:ml-0">
+    <div className="bg-background">
         {/* Header */}
         <div className="bg-gradient-to-r from-background to-muted/30 border-b border-border/50 sticky top-0 z-20">
           <div className="px-4 sm:px-6 py-6">
@@ -127,7 +122,6 @@ export default function AdminDashboard() {
             </GlassCard>
           </div>
         </div>
-      </main>
     </div>
   )
 }

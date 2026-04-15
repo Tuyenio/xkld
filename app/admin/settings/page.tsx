@@ -1,4 +1,3 @@
-import AdminSidebar from '@/components/admin-sidebar'
 import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { Input } from '@/components/ui/input'
@@ -9,10 +8,7 @@ import { Bell, ShieldCheck, Globe, Save } from 'lucide-react'
 
 export default function AdminSettingsPage() {
   return (
-    <div className="flex h-screen bg-background">
-      <AdminSidebar />
-
-      <main className="flex-1 overflow-auto md:ml-0">
+    <div className="bg-background">
         <div className="bg-gradient-to-r from-background to-muted/30 border-b border-border/50 sticky top-0 z-20">
           <div className="px-6 py-6">
             <h1 className="text-4xl font-bold text-foreground mb-1">System Settings</h1>
@@ -110,7 +106,6 @@ export default function AdminSettingsPage() {
             </GlassCard>
           </div>
         </div>
-      </main>
     </div>
   )
 }
