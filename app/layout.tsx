@@ -50,10 +50,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/logo-traenco.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', type: 'image/x-icon' },
+      { url: '/favicon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/favicon-512.png', sizes: '512x512', type: 'image/png' },
     ],
-    shortcut: '/logo-traenco.svg',
-    apple: '/logo-traenco.svg',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
   manifest: '/manifest.webmanifest',
 }
@@ -70,7 +72,7 @@ export default function RootLayout({
         '@type': 'Organization',
         name: 'XKLD VietDai',
         url: 'https://xkldvietdai.com',
-        logo: 'https://xkldvietdai.com/logo-traenco.svg',
+        logo: 'https://xkldvietdai.com/logo.png',
         contactPoint: {
           '@type': 'ContactPoint',
           contactType: 'customer support',

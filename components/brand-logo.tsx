@@ -13,7 +13,7 @@ export function BrandLogo({ compact = false, className, textClassName, href = '/
   const content = (
     <>
       <Image
-        src="/logo-traenco.svg"
+        src="/logo.png"
         alt="TRAENCO"
         width={compact ? 36 : 44}
         height={compact ? 36 : 44}
