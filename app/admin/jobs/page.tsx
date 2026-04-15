@@ -108,17 +108,17 @@ export default function AdminJobsPage() {
   return (
     <div className="bg-background">
         {/* Header */}
-        <div className="bg-white border-b border-border sticky top-0 z-20">
+        <div className="admin-page-header">
           <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Jobs Management</h1>
-              <p className="text-muted-foreground">Manage all job postings</p>
+              <h1 className="admin-page-title">Jobs Management</h1>
+              <p className="admin-page-subtitle">Manage all job postings</p>
               <p className="text-xs text-muted-foreground mt-1 inline-flex items-center gap-1">
                 <Radio size={12} className="text-emerald-500" />
                 Live sync · {lastSyncedAt.toLocaleTimeString()}
               </p>
             </div>
-            <Button className="gap-2">
+            <Button className="admin-interactive gap-2">
               <Plus size={20} />
               Create Job
             </Button>
@@ -126,15 +126,15 @@ export default function AdminJobsPage() {
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-6 space-y-6">
+        <div className="admin-page-body">
           {message && (
-            <Card className="p-3 text-sm text-muted-foreground">{message}</Card>
+            <Card className="admin-card p-3 text-sm text-muted-foreground">{message}</Card>
           )}
 
           {/* Search and Filter */}
-          <Card className="p-4">
+          <Card className="admin-card p-4">
             <div className="flex gap-4">
-              <div className="flex-1 flex items-center bg-muted rounded-lg px-4">
+              <div className="admin-control flex flex-1 items-center rounded-lg bg-muted px-4">
                 <Search size={20} className="text-muted-foreground" />
                 <Input
                   placeholder="Search jobs..."
@@ -144,7 +144,7 @@ export default function AdminJobsPage() {
                 />
               </div>
               <select
-                className="px-4 py-2 border border-border rounded-lg bg-white"
+                className="admin-control rounded-lg border px-4 py-2"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -157,7 +157,7 @@ export default function AdminJobsPage() {
           </Card>
 
           {/* Jobs Table */}
-          <Card className="p-6">
+          <Card className="admin-card p-5">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px]">
                 <thead>
@@ -190,11 +190,11 @@ export default function AdminJobsPage() {
                       <td className="py-4 px-4 text-muted-foreground text-sm">{job.posted}</td>
                       <td className="py-4 px-4">
                         <div className="flex gap-2">
-                          <button className="p-2 hover:bg-muted rounded-lg transition-colors" title="View">
+                          <button className="admin-interactive rounded-lg p-2 hover:bg-muted" title="View">
                             <Eye size={18} className="text-muted-foreground hover:text-foreground" />
                           </button>
                           <button
-                            className="p-2 hover:bg-muted rounded-lg transition-colors"
+                            className="admin-interactive rounded-lg p-2 hover:bg-muted"
                             title="Edit"
                             onClick={() => handleToggleStatus(job.id)}
                             disabled={pendingJobId === job.id}
@@ -202,7 +202,7 @@ export default function AdminJobsPage() {
                             <Edit2 size={18} className="text-muted-foreground hover:text-foreground" />
                           </button>
                           <button
-                            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                            className="admin-interactive rounded-lg p-2 hover:bg-red-50"
                             title="Delete"
                             onClick={() => handleDelete(job.id)}
                           >

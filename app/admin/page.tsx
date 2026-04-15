@@ -21,19 +21,19 @@ export default function AdminDashboard() {
   return (
     <div className="bg-background">
         {/* Header */}
-        <div className="bg-gradient-to-r from-background to-muted/30 border-b border-border/50 sticky top-0 z-20">
-          <div className="px-4 sm:px-6 py-6">
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Monitor and manage your recruitment platform</p>
+        <div className="admin-page-header bg-gradient-to-r from-background to-muted/30">
+          <div className="px-4 py-5 sm:px-6">
+            <h1 className="admin-page-title">Admin Dashboard</h1>
+            <p className="admin-page-subtitle">Monitor and manage your recruitment platform</p>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-6 space-y-6">
+        <div className="admin-page-body">
           {/* Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
             {stats.map((stat, i) => (
-              <GlassCard key={i} className="p-6">
+              <GlassCard key={i} className="admin-card p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
                     <stat.icon className="text-accent" size={24} />
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Priority Alert */}
-          <GlassCard className="p-6 border-l-4 border-l-amber-500">
+          <GlassCard className="admin-card border-l-4 border-l-amber-500 p-5">
             <div className="flex gap-4">
               <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
                 <AlertCircle className="text-amber-600" size={20} />
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             {/* Recent Applications */}
-            <GlassCard className="xl:col-span-2 p-4 sm:p-6">
+            <GlassCard className="admin-card xl:col-span-2 p-4 sm:p-5">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-foreground">Recent Applications</h2>
                 <Link href="/admin/applications">
@@ -79,7 +79,7 @@ export default function AdminDashboard() {
               </div>
               <div className="space-y-3">
                 {recentApplications.map((app) => (
-                  <div key={app.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/40 hover:bg-muted/60 transition-all duration-200 cursor-pointer">
+                  <div key={app.id} className="admin-interactive flex cursor-pointer items-center justify-between rounded-xl bg-muted/40 p-4 hover:bg-muted/60">
                     <div className="flex-1">
                       <p className="font-semibold text-foreground">{app.candidate}</p>
                       <p className="text-sm text-muted-foreground">{app.job}</p>
@@ -100,7 +100,7 @@ export default function AdminDashboard() {
             </GlassCard>
 
             {/* Quick Actions */}
-            <GlassCard className="p-6">
+            <GlassCard className="admin-card p-5">
               <h2 className="text-xl font-bold text-foreground mb-6">Quick Actions</h2>
               <div className="space-y-3">
                 <Link href="/admin/jobs" className="block">

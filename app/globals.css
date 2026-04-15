@@ -145,6 +145,46 @@
 }
 
 @layer components {
+  .admin-shell {
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  .admin-main {
+    height: 100svh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .admin-page-header {
+    @apply sticky top-0 z-20 border-b border-border/60 bg-background/95 backdrop-blur;
+  }
+
+  .admin-page-title {
+    @apply text-3xl font-bold tracking-tight text-foreground md:text-4xl;
+  }
+
+  .admin-page-subtitle {
+    @apply mt-1 text-sm text-muted-foreground md:text-base;
+  }
+
+  .admin-page-body {
+    @apply space-y-6 p-4 sm:p-6;
+  }
+
+  .admin-card {
+    @apply rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md;
+  }
+
+  .admin-control {
+    @apply border-border bg-background/90 transition-colors focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-0;
+  }
+
+  .admin-interactive {
+    @apply transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70;
+  }
+
   /* Glass Morphism */
   .glass {
     background: rgba(255, 255, 255, 0.7);
@@ -306,6 +346,32 @@
 
   .wave {
     animation: wave 2s ease-in-out infinite;
+  }
+}
+
+@media (min-width: 1280px) and (max-width: 1400px) {
+  .admin-density .admin-page-body {
+    padding: 1rem 1.25rem;
+    gap: 1rem;
+  }
+
+  .admin-density .admin-page-title {
+    font-size: 1.9rem;
+    line-height: 1.15;
+  }
+
+  .admin-density .admin-page-subtitle {
+    font-size: 0.92rem;
+  }
+
+  .admin-density .admin-card {
+    border-radius: 0.95rem;
+  }
+
+  .admin-density table th,
+  .admin-density table td {
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
   }
 }
 

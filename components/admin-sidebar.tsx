@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BarChart3, Briefcase, Users, FileText, Settings, LogOut, Menu, X, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { BarChart3, Briefcase, Users, FileText, Settings, LogOut, Menu, X, PanelLeftClose, PanelLeftOpen, ClipboardList } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export default function AdminSidebar() {
@@ -27,6 +27,11 @@ export default function AdminSidebar() {
     })
   }
 
+  const isItemActive = (href: string) => {
+    if (href === '/admin') return pathname === '/admin'
+    return pathname === href || pathname.startsWith(`${href}/`)
+  }
+
   const navItems = [
     { icon: BarChart3, label: 'Dashboard', href: '/admin' },
     { icon: BarChart3, label: 'Analytics', href: '/admin/analytics' },
@@ -37,6 +42,7 @@ export default function AdminSidebar() {
     { icon: FileText, label: 'Blog', href: '/admin/blog' },
     { icon: FileText, label: 'Media', href: '/admin/media' },
     { icon: Users, label: 'Users', href: '/admin/users' },
+    { icon: ClipboardList, label: 'QA Checklist', href: '/admin/qa' },
   ]
 
   return (
@@ -52,21 +58,21 @@ export default function AdminSidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 bg-primary text-primary-foreground transition-all duration-300 transform z-40 lg:sticky lg:top-0 lg:translate-x-0 lg:z-auto lg:shrink-0 lg:h-screen ${
+        className={`fixed inset-y-0 left-0 z-40 bg-primary text-primary-foreground shadow-2xl transition-all duration-300 transform lg:relative lg:inset-auto lg:translate-x-0 lg:z-auto lg:shrink-0 lg:h-svh lg:shadow-none ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${isCollapsed ? 'w-72 lg:w-20' : 'w-72'}`}
+        } ${isCollapsed ? 'w-72 lg:w-[5.25rem]' : 'w-72'}`}
       >
-        <div className="flex h-full min-h-dvh flex-col">
-          <div className="px-4 py-5 border-b border-primary-foreground/20">
+        <div className="flex h-full min-h-svh flex-col">
+          <div className="shrink-0 border-b border-primary-foreground/20 px-3 py-4 lg:px-4 lg:py-5">
             <div className={`flex items-start ${isCollapsed ? 'lg:justify-center' : 'justify-between'} gap-2`}>
               <div className={isCollapsed ? 'lg:hidden' : ''}>
-                <h2 className="text-3xl lg:text-2xl font-bold tracking-tight">Admin Panel</h2>
-                <p className="text-sm text-primary-foreground/70 mt-2">Operations Console</p>
+                <h2 className="text-[1.7rem] leading-tight lg:text-2xl font-bold tracking-tight">Admin Panel</h2>
+                <p className="mt-1 text-xs font-medium text-primary-foreground/70 lg:text-sm">Operations Console</p>
               </div>
               <button
                 type="button"
                 onClick={toggleCollapsed}
-                className="hidden lg:inline-flex p-2 rounded-lg text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
+                className="hidden lg:inline-flex rounded-lg p-2 text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80"
                 aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               >
                 {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
@@ -74,42 +80,43 @@ export default function AdminSidebar() {
             </div>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+          <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-3 lg:px-4 lg:py-4">
             {navItems.map((item) => {
-              const isActive = pathname === item.href
+              const isActive = isItemActive(item.href)
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   title={isCollapsed ? item.label : undefined}
-                  className={`flex items-center ${isCollapsed ? 'lg:justify-center lg:px-2' : 'gap-3 px-4'} py-3 rounded-xl transition-colors ${
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`group flex items-center ${isCollapsed ? 'lg:justify-center lg:px-2' : 'gap-3 px-3'} py-2.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80 ${
                     isActive
-                      ? 'bg-primary-foreground/20 text-primary-foreground'
+                      ? 'bg-primary-foreground/20 text-primary-foreground shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]'
                       : 'text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground'
                   }`}
                 >
-                  <item.icon size={20} />
-                  <span className={`font-medium ${isCollapsed ? 'lg:hidden' : ''}`}>{item.label}</span>
+                  <item.icon size={18} className="transition-transform duration-200 group-hover:scale-105" />
+                  <span className={`text-[0.95rem] font-medium ${isCollapsed ? 'lg:hidden' : ''}`}>{item.label}</span>
                 </Link>
               )
             })}
           </nav>
 
-          <div className="px-4 py-4 border-t border-primary-foreground/20 space-y-1">
+          <div className="shrink-0 space-y-1 border-t border-primary-foreground/20 px-3 py-3 lg:px-4 lg:py-4">
             <Link
               href="/admin/settings"
               title={isCollapsed ? 'Settings' : undefined}
-              className={`flex items-center w-full py-3 text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground rounded-xl transition-colors ${isCollapsed ? 'lg:justify-center lg:px-2' : 'gap-3 px-4'}`}
+              className={`flex items-center w-full rounded-xl py-2.5 text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80 ${isCollapsed ? 'lg:justify-center lg:px-2' : 'gap-3 px-3'}`}
             >
-              <Settings size={20} />
-              <span className={`font-medium ${isCollapsed ? 'lg:hidden' : ''}`}>Settings</span>
+              <Settings size={18} />
+              <span className={`text-[0.95rem] font-medium ${isCollapsed ? 'lg:hidden' : ''}`}>Settings</span>
             </Link>
             <button
               title={isCollapsed ? 'Logout' : undefined}
-              className={`flex items-center w-full py-3 text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground rounded-xl transition-colors ${isCollapsed ? 'lg:justify-center lg:px-2' : 'gap-3 px-4'}`}
+              className={`flex items-center w-full rounded-xl py-2.5 text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80 ${isCollapsed ? 'lg:justify-center lg:px-2' : 'gap-3 px-3'}`}
             >
-              <LogOut size={20} />
-              <span className={`font-medium ${isCollapsed ? 'lg:hidden' : ''}`}>Logout</span>
+              <LogOut size={18} />
+              <span className={`text-[0.95rem] font-medium ${isCollapsed ? 'lg:hidden' : ''}`}>Logout</span>
             </button>
           </div>
         </div>

@@ -128,10 +128,10 @@ export default function AdminApplicationsPage() {
   return (
     <div className="bg-background">
         {/* Header */}
-        <div className="bg-white border-b border-border sticky top-0 z-20">
+        <div className="admin-page-header">
           <div className="px-4 sm:px-6 py-4">
-            <h1 className="text-3xl font-bold text-foreground">Applications</h1>
-            <p className="text-muted-foreground">Review and manage job applications</p>
+            <h1 className="admin-page-title">Applications</h1>
+            <p className="admin-page-subtitle">Review and manage job applications</p>
             <p className="text-xs text-muted-foreground mt-1 inline-flex items-center gap-1">
               <Radio size={12} className="text-emerald-500" />
               Live sync · {lastSyncedAt.toLocaleTimeString()}
@@ -140,15 +140,15 @@ export default function AdminApplicationsPage() {
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-6 space-y-6">
+        <div className="admin-page-body">
           {message && (
-            <Card className="p-3 text-sm text-muted-foreground">{message}</Card>
+            <Card className="admin-card p-3 text-sm text-muted-foreground">{message}</Card>
           )}
 
           {/* Search and Filter */}
-          <Card className="p-4">
+          <Card className="admin-card p-4">
             <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 flex items-center bg-muted rounded-lg px-4">
+              <div className="admin-control flex flex-1 items-center rounded-lg bg-muted px-4">
                 <Search size={20} className="text-muted-foreground" />
                 <Input
                   placeholder="Search applications..."
@@ -158,7 +158,7 @@ export default function AdminApplicationsPage() {
                 />
               </div>
               <select
-                className="px-4 py-2 border border-border rounded-lg bg-white"
+                className="admin-control rounded-lg border px-4 py-2"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -172,7 +172,7 @@ export default function AdminApplicationsPage() {
           </Card>
 
           {/* Applications Table */}
-          <Card className="p-6">
+          <Card className="admin-card p-5">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px]">
                 <thead>
@@ -215,7 +215,7 @@ export default function AdminApplicationsPage() {
                       <td className="py-4 px-4 text-muted-foreground text-sm">{app.appliedDate}</td>
                       <td className="py-4 px-4">
                         <div className="flex gap-2">
-                          <button className="p-2 hover:bg-muted rounded-lg transition-colors" title="View">
+                          <button className="admin-interactive rounded-lg p-2 hover:bg-muted" title="View">
                             <Eye size={18} className="text-muted-foreground hover:text-foreground" />
                           </button>
                           <button

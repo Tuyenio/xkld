@@ -80,23 +80,23 @@ export default function AdminCandidatesPage() {
   return (
     <div className="bg-background">
         {/* Header */}
-        <div className="bg-white border-b border-border sticky top-0 z-20">
-          <div className="px-4 sm:px-6 py-4">
-            <h1 className="text-3xl font-bold text-foreground">Candidates</h1>
-            <p className="text-muted-foreground">Manage and review all candidates</p>
+        <div className="admin-page-header">
+          <div className="px-4 py-4 sm:px-6">
+            <h1 className="admin-page-title">Candidates</h1>
+            <p className="admin-page-subtitle">Manage and review all candidates</p>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-6 space-y-6">
+        <div className="admin-page-body">
           {message && (
-            <Card className="p-3 text-sm text-muted-foreground">{message}</Card>
+            <Card className="admin-card p-3 text-sm text-muted-foreground">{message}</Card>
           )}
 
           {/* Search and Filter */}
-          <Card className="p-4">
+          <Card className="admin-card p-4">
             <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 flex items-center bg-muted rounded-lg px-4">
+              <div className="admin-control flex flex-1 items-center rounded-lg bg-muted px-4">
                 <Search size={20} className="text-muted-foreground" />
                 <Input
                   placeholder="Search candidates..."
@@ -106,7 +106,7 @@ export default function AdminCandidatesPage() {
                 />
               </div>
               <select
-                className="px-4 py-2 border border-border rounded-lg bg-white"
+                className="admin-control rounded-lg border px-4 py-2"
                 value={locationFilter}
                 onChange={(e) => setLocationFilter(e.target.value)}
               >
@@ -116,7 +116,7 @@ export default function AdminCandidatesPage() {
                   </option>
                 ))}
               </select>
-              <Button variant="outline" className="gap-2" onClick={exportCurrentView}>
+              <Button variant="outline" className="admin-control gap-2" onClick={exportCurrentView}>
                 <Download size={18} />
                 Export
               </Button>
@@ -126,17 +126,17 @@ export default function AdminCandidatesPage() {
           {/* Candidates Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCandidates.map((candidate) => (
-              <Card key={candidate.id} className="p-6 hover:shadow-lg transition-shadow">
+              <Card key={candidate.id} className="admin-card p-5 hover:shadow-lg transition-shadow">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                     <span className="text-xl">👤</span>
                   </div>
                   <div className="flex gap-2">
-                    <button className="p-2 hover:bg-muted rounded-lg transition-colors" title="View">
+                    <button className="admin-interactive rounded-lg p-2 hover:bg-muted" title="View">
                       <Eye size={18} className="text-muted-foreground hover:text-foreground" />
                     </button>
                     <button
-                      className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                      className="admin-interactive rounded-lg p-2 hover:bg-red-50"
                       title="Delete"
                       onClick={() => removeCandidate(candidate.id)}
                     >
@@ -177,7 +177,7 @@ export default function AdminCandidatesPage() {
             ))}
           </div>
           {filteredCandidates.length === 0 && (
-            <Card className="p-10 text-center text-muted-foreground">
+            <Card className="admin-card p-10 text-center text-muted-foreground">
               No candidates found for your current filters.
             </Card>
           )}
