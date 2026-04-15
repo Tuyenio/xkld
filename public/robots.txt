@@ -1,0 +1,27 @@
+# XKLD VietDai - Job Portal Robots.txt
+
+# Allow all bots
+User-agent: *
+Allow: /
+
+# Disallow admin and private pages
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /login
+Disallow: /signup
+
+# Crawl delay
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://xkldvietdai.com/sitemap.xml
+
+# Google specific
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing specific
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1

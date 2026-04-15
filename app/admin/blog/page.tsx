@@ -1,0 +1,120 @@
+import AdminSidebar from '@/components/admin-sidebar'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Edit2, Trash2, Eye, Plus, Search } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+
+export default function AdminBlogPage() {
+  const posts = [
+    {
+      id: 1,
+      title: 'Top 10 Tips to Ace Your Taiwan Job Interview',
+      author: 'Sarah Johnson',
+      status: 'Published',
+      views: 1240,
+      published: '2024-03-15',
+    },
+    {
+      id: 2,
+      title: 'Guide to Finding Accommodation in Taipei',
+      author: 'Mike Chen',
+      status: 'Published',
+      views: 856,
+      published: '2024-03-10',
+    },
+    {
+      id: 3,
+      title: 'Salary Negotiation in Taiwan: What You Need to Know',
+      author: 'Lisa Wong',
+      status: 'Draft',
+      views: 0,
+      published: '2024-03-05',
+    },
+  ]
+
+  return (
+    <div className="flex h-screen bg-background">
+      <AdminSidebar />
+
+      <main className="flex-1 overflow-auto md:ml-0">
+        {/* Header */}
+        <div className="bg-white border-b border-border sticky top-0 z-20">
+          <div className="px-6 py-4 flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Blog Management</h1>
+              <p className="text-muted-foreground">Create and manage blog posts</p>
+            </div>
+            <Button className="gap-2">
+              <Plus size={20} />
+              New Post
+            </Button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-6">
+          {/* Search */}
+          <Card className="p-4">
+            <div className="flex items-center bg-muted rounded-lg px-4">
+              <Search size={20} className="text-muted-foreground" />
+              <Input
+                placeholder="Search posts..."
+                className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
+            </div>
+          </Card>
+
+          {/* Posts Table */}
+          <Card className="p-6">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 font-semibold text-foreground">Title</th>
+                    <th className="text-left py-3 px-4 font-semibold text-foreground">Author</th>
+                    <th className="text-left py-3 px-4 font-semibold text-foreground">Status</th>
+                    <th className="text-left py-3 px-4 font-semibold text-foreground">Views</th>
+                    <th className="text-left py-3 px-4 font-semibold text-foreground">Published</th>
+                    <th className="text-left py-3 px-4 font-semibold text-foreground">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {posts.map((post) => (
+                    <tr key={post.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                      <td className="py-4 px-4">
+                        <p className="font-semibold text-foreground">{post.title}</p>
+                      </td>
+                      <td className="py-4 px-4 text-muted-foreground">{post.author}</td>
+                      <td className="py-4 px-4">
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                          post.status === 'Published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {post.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 text-muted-foreground">{post.views}</td>
+                      <td className="py-4 px-4 text-muted-foreground text-sm">{post.published}</td>
+                      <td className="py-4 px-4">
+                        <div className="flex gap-2">
+                          <button className="p-2 hover:bg-muted rounded-lg transition-colors" title="View">
+                            <Eye size={18} className="text-muted-foreground hover:text-foreground" />
+                          </button>
+                          <button className="p-2 hover:bg-muted rounded-lg transition-colors" title="Edit">
+                            <Edit2 size={18} className="text-muted-foreground hover:text-foreground" />
+                          </button>
+                          <button className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                            <Trash2 size={18} className="text-red-500 hover:text-red-700" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      </main>
+    </div>
+  )
+}
