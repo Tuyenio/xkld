@@ -3,10 +3,21 @@
 import { useEffect, useMemo, useState } from 'react'
 import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog'
+import { useId } from 'react'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { PremiumModal } from '@/components/premium-modal'
-import { Search, UserPlus, Shield, Mail, Phone, Radio } from 'lucide-react'
+import { Search, UserPlus, Shield, Mail, Phone, Radio, Eye, EyeOff, Lock } from 'lucide-react'
 
 const initialUsers = [
   {
@@ -59,10 +70,23 @@ function roleBadge(role: string) {
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState(initialUsers)
+  const [isAddOpen, setIsAddOpen] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newEmail, setNewEmail] = useState('')
+  const [newPhone, setNewPhone] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
+  const [confirmError, setConfirmError] = useState('')
+  const [passwordStrength, setPasswordStrength] = useState<'weak'|'medium'|'strong' | ''>('')
+  const [newRole, setNewRole] = useState('editor')
+  const [newVerified, setNewVerified] = useState(false)
+  const formId = useId()
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
   const [pendingUserId, setPendingUserId] = useState<number | null>(null)
-  const [lastSyncedAt, setLastSyncedAt] = useState(() => new Date())
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null)
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -74,6 +98,8 @@ export default function AdminUsersPage() {
   }, [users, query, roleFilter])
 
   useEffect(() => {
+    // set initial time on client to avoid SSR/CSR mismatch
+    setLastSyncedAt(new Date())
     const timer = window.setInterval(() => {
       if (document.visibilityState !== 'visible') return
       setUsers((prev) => {
@@ -134,14 +160,137 @@ export default function AdminUsersPage() {
             <div>
               <h1 className="text-4xl font-bold text-foreground mb-1">Users Management</h1>
               <p className="text-muted-foreground">Manage permissions, roles, and account lifecycle.</p>
-              <p className="text-xs text-muted-foreground mt-1 inline-flex items-center gap-1">
+                <p className="text-xs text-muted-foreground mt-1 inline-flex items-center gap-1">
                 <Radio size={12} className="text-emerald-500" />
-                Live sync · {lastSyncedAt.toLocaleTimeString()}
+                Live sync · {lastSyncedAt ? lastSyncedAt.toLocaleTimeString() : '—'}
               </p>
             </div>
-            <PremiumButton variant="primary" icon={<UserPlus size={18} />}>
-              Add New User
-            </PremiumButton>
+            <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+              <DialogTrigger asChild>
+                <PremiumButton variant="primary" icon={<UserPlus size={18} />}>
+                  Add New User
+                </PremiumButton>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-xl rounded-2xl border border-border/60">
+                <DialogHeader>
+                  <DialogTitle>Add New User</DialogTitle>
+                  <DialogDescription>Fill in details to create a new user account.</DialogDescription>
+                </DialogHeader>
+
+                <form
+                  id={formId}
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    // basic validation
+                    setPasswordError('')
+                    setConfirmError('')
+                    if (!newName.trim() || !newEmail.trim()) return
+                    if (newPassword.length < 8) {
+                      setPasswordError('Mật khẩu phải có ít nhất 8 ký tự')
+                      return
+                    }
+                    if (newPassword !== confirmPassword) {
+                      setConfirmError('Mật khẩu xác nhận không khớp')
+                      return
+                    }
+                    const nextId = users.length ? Math.max(...users.map((u) => u.id)) + 1 : 1
+                    const joinedAt = new Date().toISOString().split('T')[0]
+                    const created = {
+                      id: nextId,
+                      name: newName.trim(),
+                      email: newEmail.trim(),
+                      phone: newPhone.trim(),
+                      role: newRole,
+                      status: 'active',
+                      verified: newVerified,
+                      joinedAt,
+                      // Note: demo only — passwords should be hashed server-side
+                      password: newPassword,
+                    }
+                    setUsers((prev) => [created, ...prev])
+                    // reset form
+                    setNewName('')
+                    setNewEmail('')
+                    setNewPhone('')
+                    setNewPassword('')
+                    setConfirmPassword('')
+                    setNewRole('editor')
+                    setNewVerified(false)
+                    setPasswordStrength('')
+                    setIsAddOpen(false)
+                  }}
+                  className="grid gap-4 py-2"
+                >
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="text-sm text-muted-foreground">Full name</label>
+                    <input value={newName} onChange={(e) => setNewName(e.target.value)} className="px-3 py-2 border border-border rounded-md" placeholder="e.g. Nguyen Van A" />
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="text-sm text-muted-foreground">Email</label>
+                    <input value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="px-3 py-2 border border-border rounded-md" placeholder="email@example.com" type="email" />
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="text-sm text-muted-foreground">Mật khẩu</label>
+                    <div className="relative">
+                      <input
+                        value={newPassword}
+                        onChange={(e) => {
+                          const v = e.target.value
+                          setNewPassword(v)
+                          // simple strength
+                          if (v.length >= 12 && /[0-9]/.test(v) && /[A-Z]/.test(v) && /[^A-Za-z0-9]/.test(v)) setPasswordStrength('strong')
+                          else if (v.length >= 8) setPasswordStrength('medium')
+                          else setPasswordStrength('weak')
+                        }}
+                        type={showPassword ? 'text' : 'password'}
+                        className="w-full px-3 py-2 border border-border rounded-md pr-10"
+                        placeholder="Ít nhất 8 ký tự"
+                      />
+                      <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                    {passwordError && <p className="text-xs text-destructive">{passwordError}</p>}
+                    <div className="h-2 mt-2 rounded-md bg-muted/40 overflow-hidden">
+                      <div
+                        className={`h-full transition-all ${passwordStrength === 'weak' ? 'w-1/3 bg-red-400' : passwordStrength === 'medium' ? 'w-2/3 bg-amber-400' : passwordStrength === 'strong' ? 'w-full bg-emerald-400' : 'w-0'}`}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="text-sm text-muted-foreground">Xác nhận mật khẩu</label>
+                    <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type={showPassword ? 'text' : 'password'} className="px-3 py-2 border border-border rounded-md" placeholder="Nhập lại mật khẩu" />
+                    {confirmError && <p className="text-xs text-destructive">{confirmError}</p>}
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="text-sm text-muted-foreground">Phone</label>
+                    <input value={newPhone} onChange={(e) => setNewPhone(e.target.value)} className="px-3 py-2 border border-border rounded-md" placeholder="+84 9x xxx xxxx" />
+                  </div>
+                  <div className="flex gap-4 items-center">
+                    <div className="flex-1">
+                      <label className="text-sm text-muted-foreground">Role</label>
+                      <select value={newRole} onChange={(e) => setNewRole(e.target.value)} className="w-full px-3 py-2 border border-border rounded-md">
+                        <option value="admin">admin</option>
+                        <option value="recruiter">recruiter</option>
+                        <option value="editor">editor</option>
+                        <option value="support">support</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input id="verified" type="checkbox" checked={newVerified} onChange={(e) => setNewVerified(e.target.checked)} />
+                      <label htmlFor="verified" className="text-sm text-muted-foreground">Verified</label>
+                    </div>
+                  </div>
+
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <button type="button" className="px-4 py-2 rounded-md border border-border">Cancel</button>
+                    </DialogClose>
+                    <button type="submit" className="px-4 py-2 rounded-md bg-primary text-primary-foreground">Create user</button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 

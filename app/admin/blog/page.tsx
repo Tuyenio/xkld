@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { PremiumButton } from '@/components/premium-button'
 import { Edit2, Trash2, Eye, Plus, Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
@@ -72,10 +72,9 @@ export default function AdminBlogPage() {
               <h1 className="text-3xl font-bold text-foreground">Blog Management</h1>
               <p className="text-muted-foreground">Create and manage blog posts</p>
             </div>
-            <Button className="gap-2">
-              <Plus size={20} />
+            <PremiumButton icon={<Plus size={20} />}>
               New Post
-            </Button>
+            </PremiumButton>
           </div>
         </div>
 
