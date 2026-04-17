@@ -1,6 +1,7 @@
 "use client"
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
+import { Link as LinkIcon, Image as ImageIcon } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { PremiumButton } from '@/components/premium-button'
 import { Edit2, Trash2, Eye, Plus, Search } from 'lucide-react'
@@ -53,11 +54,26 @@ export default function AdminBlogPage() {
   const [newAuthor, setNewAuthor] = useState('')
   const [newStatus, setNewStatus] = useState('Draft')
   const [newContent, setNewContent] = useState('')
+  const [newContentHtml, setNewContentHtml] = useState('')
+  const [showNewLinkInput, setShowNewLinkInput] = useState(false)
+  const [newLinkUrl, setNewLinkUrl] = useState('')
+  const [showNewImageInput, setShowNewImageInput] = useState(false)
+  const [newImageUploadFile, setNewImageUploadFile] = useState<File | null>(null)
+  const [newImageUploadPreview, setNewImageUploadPreview] = useState<string | null>(null)
   const [newPublished, setNewPublished] = useState('')
+  const [newImageFile, setNewImageFile] = useState<File | null>(null)
+  const [newImagePreview, setNewImagePreview] = useState<string | null>(null)
 
   const [viewPost, setViewPost] = useState<any | null>(null)
   const [isViewOpen, setIsViewOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const viewEditorRef = useRef<HTMLDivElement | null>(null)
+  const newEditorRef = useRef<HTMLDivElement | null>(null)
+  const [showViewLinkInput, setShowViewLinkInput] = useState(false)
+  const [viewLinkUrl, setViewLinkUrl] = useState('')
+  const [showViewImageInput, setShowViewImageInput] = useState(false)
+  const [viewImageUploadFile, setViewImageUploadFile] = useState<File | null>(null)
+  const [viewImageUploadPreview, setViewImageUploadPreview] = useState<string | null>(null)
 
   const openView = (post: any, edit = false) => {
     setViewPost(post)
@@ -71,6 +87,17 @@ export default function AdminBlogPage() {
     setIsEditing(false)
     setIsViewOpen(false)
     setMessage(`Saved changes for post #${viewPost.id}`)
+  }
+
+  const transformContentCase = (mode: 'lower' | 'upper' | 'title' | 'sentence') => {
+    if (!viewPost) return
+    const orig = viewPost.content || ''
+    let next = orig
+    if (mode === 'lower') next = orig.toLowerCase()
+    if (mode === 'upper') next = orig.toUpperCase()
+    if (mode === 'title') next = orig.replace(/\w\S*/g, (txt: string) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())
+    if (mode === 'sentence') next = orig.replace(/(^|[.!?]\s+)([a-z])/, (m: string, p1: string, p2: string) => p1 + p2.toUpperCase())
+    setViewPost({ ...viewPost, content: next })
   }
 
   const filteredPosts = useMemo(() => {
@@ -112,7 +139,7 @@ export default function AdminBlogPage() {
               <DialogTrigger asChild>
                 <PremiumButton icon={<Plus size={20} />}>New Post</PremiumButton>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-2xl rounded-2xl border border-border/60">
+              <DialogContent className="w-full sm:max-w-2xl rounded-2xl border border-border/60 max-h-[90vh] overflow-hidden">
                 <DialogHeader>
                   <DialogTitle>New Post</DialogTitle>
                   <DialogDescription>Create and publish a new blog post.</DialogDescription>
@@ -130,6 +157,7 @@ export default function AdminBlogPage() {
                     views: 0,
                     published,
                     content: newContent,
+                    image: newImagePreview || null,
                   }
                   setPosts((prev) => [created, ...prev])
                   setNewTitle('')
@@ -137,9 +165,43 @@ export default function AdminBlogPage() {
                   setNewStatus('Draft')
                   setNewContent('')
                   setNewPublished('')
+                  if (newImagePreview) {
+                    URL.revokeObjectURL(newImagePreview)
+                  }
+                  setNewImageFile(null)
+                  setNewImagePreview(null)
                   setIsCreateOpen(false)
                   setMessage(`Created post #${nextId}`)
                 }}>
+                  <div className="relative overflow-y-auto max-h-[70vh] px-0 py-2 pb-40 rounded-b-lg overflow-hidden">
+                  <div>
+                    <label className="text-sm text-muted-foreground">Cover image</label>
+                    <div className="mt-2 flex items-center gap-4">
+                      <div className="w-32 sm:w-40 h-24 sm:h-28 bg-muted/30 rounded-md overflow-hidden flex items-center justify-center">
+                        {newImagePreview ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={newImagePreview} alt="preview" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="text-xs text-muted-foreground">No image</div>
+                        )}
+                      </div>
+                      <div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(ev) => {
+                            const f = ev.target.files && ev.target.files[0]
+                            if (f) {
+                              if (newImagePreview) URL.revokeObjectURL(newImagePreview)
+                              const url = URL.createObjectURL(f)
+                              setNewImageFile(f)
+                              setNewImagePreview(url)
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
                   <div className="grid sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-sm text-muted-foreground">Title</label>
@@ -160,10 +222,82 @@ export default function AdminBlogPage() {
                   </div>
                   <div>
                     <label className="text-sm text-muted-foreground">Content</label>
-                    <textarea value={newContent} onChange={(e) => setNewContent(e.target.value)} className="w-full px-3 py-2 border border-border rounded-md min-h-[140px]" />
+                    <div className="border border-border rounded-md bg-white">
+                      <div className="flex flex-wrap items-center gap-2 p-2 border-b border-border/60 bg-muted/5">
+                        <button type="button" onClick={() => document.execCommand('bold')} className="px-2 py-1 rounded text-sm">B</button>
+                        <button type="button" onClick={() => document.execCommand('italic')} className="px-2 py-1 rounded text-sm">I</button>
+                        <button type="button" onClick={() => document.execCommand('underline')} className="px-2 py-1 rounded text-sm">U</button>
+                        <button type="button" onClick={() => document.execCommand('insertOrderedList')} className="px-2 py-1 rounded text-sm">OL</button>
+                        <button type="button" onClick={() => document.execCommand('insertUnorderedList')} className="px-2 py-1 rounded text-sm">UL</button>
+                        <div className="relative">
+                          <button type="button" onClick={() => { setShowNewLinkInput((s) => !s); setShowNewImageInput(false) }} className="px-2 py-1 rounded text-sm flex items-center gap-1">
+                            <LinkIcon size={14} />
+                            <span className="sr-only">Insert link</span>
+                          </button>
+                          {showNewLinkInput && (
+                            <div className="absolute z-20 mt-2 bg-white border border-border rounded-md p-2 shadow-md w-64">
+                              <div className="text-xs text-muted-foreground mb-1">Insert link URL</div>
+                              <input value={newLinkUrl} onChange={(e) => setNewLinkUrl(e.target.value)} placeholder="https://example.com" className="w-full px-2 py-1 border border-border rounded-md mb-2" />
+                              <div className="flex justify-end gap-2">
+                                <button type="button" onClick={() => { setShowNewLinkInput(false); setNewLinkUrl('') }} className="px-2 py-1 rounded border text-sm">Cancel</button>
+                                <button type="button" onClick={() => { if (newLinkUrl) { document.execCommand('createLink', false, newLinkUrl); setShowNewLinkInput(false); setNewLinkUrl('') } }} className="px-2 py-1 rounded bg-primary text-primary-foreground text-sm">Insert</button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="relative">
+                          <button type="button" onClick={() => { setShowNewImageInput((s) => !s); setShowNewLinkInput(false) }} className="px-2 py-1 rounded text-sm flex items-center gap-1">
+                            <ImageIcon size={14} />
+                            <span className="sr-only">Insert image</span>
+                          </button>
+                          {showNewImageInput && (
+                            <div className="absolute z-20 mt-2 bg-white border border-border rounded-md p-3 shadow-md w-72">
+                              <div className="text-xs text-muted-foreground mb-1">Insert image</div>
+                              <input type="text" value={newImageUploadPreview || ''} onChange={(e) => setNewImageUploadPreview(e.target.value)} placeholder="Image URL (or upload below)" className="w-full px-2 py-1 border border-border rounded-md mb-2" />
+                              <div className="mb-2">
+                                <div className="text-xs text-muted-foreground mb-1">Or upload</div>
+                                <input type="file" accept="image/*" onChange={(ev) => {
+                                  const f = ev.target.files && ev.target.files[0]
+                                  if (f) {
+                                    if (newImageUploadPreview) URL.revokeObjectURL(newImageUploadPreview)
+                                    const url = URL.createObjectURL(f)
+                                    setNewImageUploadFile(f)
+                                    setNewImageUploadPreview(url)
+                                  }
+                                }} />
+                                {newImageUploadPreview && (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img src={newImageUploadPreview} alt="preview" className="mt-2 w-full h-28 object-cover rounded" />
+                                )}
+                              </div>
+                              <div className="flex justify-end gap-2">
+                                <button type="button" onClick={() => { setShowNewImageInput(false); setNewImageUploadFile(null); if (newImageUploadPreview) { URL.revokeObjectURL(newImageUploadPreview); setNewImageUploadPreview(null) } }} className="px-2 py-1 rounded border text-sm">Cancel</button>
+                                <button type="button" onClick={() => {
+                                  const url = newImageUploadPreview
+                                  if (url) { document.execCommand('insertImage', false, url); setShowNewImageInput(false); setNewImageUploadFile(null); setNewImageUploadPreview(null) }
+                                }} className="px-2 py-1 rounded bg-primary text-primary-foreground text-sm">Insert</button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="ml-2 text-xs text-muted-foreground">Case:</div>
+                        <button type="button" onClick={() => { if (newEditorRef.current) { newEditorRef.current.innerText = newEditorRef.current.innerText.toLowerCase(); setNewContentHtml(newEditorRef.current.innerHTML) } }} className="px-2 py-1 rounded text-sm">lower</button>
+                        <button type="button" onClick={() => { if (newEditorRef.current) { newEditorRef.current.innerText = newEditorRef.current.innerText.toUpperCase(); setNewContentHtml(newEditorRef.current.innerHTML) } }} className="px-2 py-1 rounded text-sm">UPPER</button>
+                      </div>
+                      <div
+                        ref={newEditorRef}
+                        contentEditable
+                        suppressContentEditableWarning
+                        onInput={(e) => setNewContentHtml((e.target as HTMLDivElement).innerHTML)}
+                        className="min-h-[160px] p-3"
+                        dangerouslySetInnerHTML={{ __html: newContentHtml }}
+                      />
+                    </div>
                   </div>
 
-                  <DialogFooter>
+                  </div>
+                  <DialogFooter className="absolute bottom-0 left-0 right-0 z-50 bg-background px-4 sm:px-6 py-3 flex justify-end gap-2 border-t border-border/10 rounded-b-lg shadow-md">
                     <DialogClose asChild>
                       <button type="button" className="px-4 py-2 rounded-md border border-border">Cancel</button>
                     </DialogClose>
@@ -207,8 +341,8 @@ export default function AdminBlogPage() {
 
           {/* Posts Table */}
           <Card className="p-6">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px]">
+              <div className="overflow-x-auto">
+              <table className="w-full min-w-0">
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left py-3 px-4 font-semibold text-foreground">Title</th>
@@ -271,7 +405,7 @@ export default function AdminBlogPage() {
           </Card>
           {/* View / Edit Post Dialog */}
           <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-            <DialogContent className="sm:max-w-2xl rounded-2xl border border-border/60">
+              <DialogContent className="w-full sm:max-w-2xl rounded-2xl border border-border/60 max-h-[90vh] overflow-hidden">
               <DialogHeader>
                 <DialogTitle>{isEditing ? 'Edit Post' : 'Post details'}</DialogTitle>
                 <DialogDescription>Read or edit the full post content.</DialogDescription>
@@ -279,6 +413,36 @@ export default function AdminBlogPage() {
 
               {viewPost && (
                 <form className="grid gap-4 py-2" onSubmit={(e) => { e.preventDefault(); saveViewEdits(); }}>
+                  <div className="overflow-y-auto max-h-[72vh] px-0 py-2">
+                  {/* cover image preview / upload */}
+                  <div className="flex items-start gap-4">
+                    <div className="w-40 sm:w-56 h-28 sm:h-36 bg-muted/30 rounded-md overflow-hidden flex items-center justify-center">
+                      {viewPost.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={viewPost.image} alt="cover" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="text-xs text-muted-foreground">No image</div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      {isEditing && (
+                        <div className="mb-2">
+                          <label className="text-sm text-muted-foreground">Change cover image</label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(ev) => {
+                              const f = ev.target.files && ev.target.files[0]
+                              if (f) {
+                                const url = URL.createObjectURL(f)
+                                setViewPost({ ...viewPost, image: url })
+                              }
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm text-muted-foreground">Title</label>
@@ -306,25 +470,112 @@ export default function AdminBlogPage() {
                   <div>
                     <label className="text-sm text-muted-foreground">Content</label>
                     {isEditing ? (
-                      <textarea value={viewPost.content || ''} onChange={(e) => setViewPost({ ...viewPost, content: e.target.value })} className="w-full px-3 py-2 border border-border rounded-md min-h-[160px]" />
+                      <div>
+                        <div className="flex flex-wrap items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="text-sm text-muted-foreground">Formatting:</div>
+                            <div className="flex gap-1">
+                              <button type="button" onClick={() => document.execCommand('bold')} className="px-2 py-1 rounded text-sm">B</button>
+                              <button type="button" onClick={() => document.execCommand('italic')} className="px-2 py-1 rounded text-sm">I</button>
+                              <button type="button" onClick={() => document.execCommand('underline')} className="px-2 py-1 rounded text-sm">U</button>
+                              <button type="button" onClick={() => document.execCommand('insertOrderedList')} className="px-2 py-1 rounded text-sm">OL</button>
+                              <button type="button" onClick={() => document.execCommand('insertUnorderedList')} className="px-2 py-1 rounded text-sm">UL</button>
+                              <div className="relative">
+                                <button type="button" onClick={() => { setShowViewLinkInput((s) => !s); setShowViewImageInput(false) }} className="px-2 py-1 rounded text-sm flex items-center gap-1">
+                                  <LinkIcon size={14} />
+                                  <span className="sr-only">Insert link</span>
+                                </button>
+                                {showViewLinkInput && (
+                                  <div className="absolute z-20 mt-2 bg-white border border-border rounded-md p-2 shadow-md w-64">
+                                    <div className="text-xs text-muted-foreground mb-1">Insert link URL</div>
+                                    <input value={viewLinkUrl} onChange={(e) => setViewLinkUrl(e.target.value)} placeholder="https://example.com" className="w-full px-2 py-1 border border-border rounded-md mb-2" />
+                                    <div className="flex justify-end gap-2">
+                                      <button type="button" onClick={() => { setShowViewLinkInput(false); setViewLinkUrl('') }} className="px-2 py-1 rounded border text-sm">Cancel</button>
+                                      <button type="button" onClick={() => { if (viewLinkUrl && viewEditorRef.current) { document.execCommand('createLink', false, viewLinkUrl); setShowViewLinkInput(false); setViewLinkUrl('') } }} className="px-2 py-1 rounded bg-primary text-primary-foreground text-sm">Insert</button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="relative">
+                                <button type="button" onClick={() => { setShowViewImageInput((s) => !s); setShowViewLinkInput(false) }} className="px-2 py-1 rounded text-sm flex items-center gap-1">
+                                  <ImageIcon size={14} />
+                                  <span className="sr-only">Insert image</span>
+                                </button>
+                                {showViewImageInput && (
+                                  <div className="absolute z-20 mt-2 bg-white border border-border rounded-md p-3 shadow-md w-72">
+                                    <div className="text-xs text-muted-foreground mb-1">Insert image</div>
+                                    <input type="text" value={viewImageUploadPreview || ''} onChange={(e) => setViewImageUploadPreview(e.target.value)} placeholder="Image URL (or upload below)" className="w-full px-2 py-1 border border-border rounded-md mb-2" />
+                                    <div className="mb-2">
+                                      <div className="text-xs text-muted-foreground mb-1">Or upload</div>
+                                      <input type="file" accept="image/*" onChange={(ev) => {
+                                        const f = ev.target.files && ev.target.files[0]
+                                        if (f) {
+                                          if (viewImageUploadPreview) URL.revokeObjectURL(viewImageUploadPreview)
+                                          const url = URL.createObjectURL(f)
+                                          setViewImageUploadFile(f)
+                                          setViewImageUploadPreview(url)
+                                        }
+                                      }} />
+                                      {viewImageUploadPreview && (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img src={viewImageUploadPreview} alt="preview" className="mt-2 w-full h-28 object-cover rounded" />
+                                      )}
+                                    </div>
+                                    <div className="flex justify-end gap-2">
+                                      <button type="button" onClick={() => { setShowViewImageInput(false); setViewImageUploadFile(null); if (viewImageUploadPreview) { URL.revokeObjectURL(viewImageUploadPreview); setViewImageUploadPreview(null) } }} className="px-2 py-1 rounded border text-sm">Cancel</button>
+                                      <button type="button" onClick={() => {
+                                        const url = viewImageUploadPreview
+                                        if (url && viewEditorRef.current) { document.execCommand('insertImage', false, url); setShowViewImageInput(false); setViewImageUploadFile(null); setViewImageUploadPreview(null) }
+                                      }} className="px-2 py-1 rounded bg-primary text-primary-foreground text-sm">Insert</button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="text-xs text-muted-foreground">Case:</div>
+                            <button type="button" onClick={() => { if (viewEditorRef.current) { viewEditorRef.current.innerText = viewEditorRef.current.innerText.toLowerCase(); setViewPost({ ...viewPost, content: viewEditorRef.current.innerHTML }) } }} className="px-2 py-1 rounded text-sm">lower</button>
+                            <button type="button" onClick={() => { if (viewEditorRef.current) { viewEditorRef.current.innerText = viewEditorRef.current.innerText.toUpperCase(); setViewPost({ ...viewPost, content: viewEditorRef.current.innerHTML }) } }} className="px-2 py-1 rounded text-sm">UPPER</button>
+                            <button type="button" onClick={() => transformContentCase('title')} className="px-2 py-1 rounded text-sm">Title</button>
+                            <button type="button" onClick={() => transformContentCase('sentence')} className="px-2 py-1 rounded text-sm">Sentence</button>
+                          </div>
+                        </div>
+                        <div className="border border-border rounded-md bg-white">
+                          <div
+                            ref={viewEditorRef}
+                            contentEditable
+                            suppressContentEditableWarning
+                            onInput={(e) => setViewPost({ ...viewPost, content: (e.target as HTMLDivElement).innerHTML })}
+                            className="min-h-[220px] p-3"
+                            dangerouslySetInnerHTML={{ __html: viewPost.content || '' }}
+                          />
+                        </div>
+                      </div>
                     ) : (
-                      <div className="prose text-sm text-muted-foreground whitespace-pre-line">{viewPost.content}</div>
+                      <div className="prose text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: viewPost.content || '' }} />
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <DialogClose asChild>
-                      <button type="button" className="px-4 py-2 rounded-md border border-border">Close</button>
-                    </DialogClose>
-                    {isEditing ? (
-                      <div className="flex gap-2">
-                        <button onClick={() => { setIsEditing(false); setViewPost(null); setIsViewOpen(false); }} type="button" className="px-4 py-2 rounded-md border">Cancel</button>
-                        <button type="submit" className="px-4 py-2 rounded-md bg-primary text-primary-foreground">Save changes</button>
-                      </div>
-                    ) : (
-                      <button onClick={() => setIsEditing(true)} type="button" className="px-4 py-2 rounded-md border">Edit</button>
-                    )}
                   </div>
+                  <DialogFooter className="sticky bottom-0 left-0 right-0 z-50 bg-background px-4 sm:px-6 py-3 flex justify-end gap-2 border-t border-border/10">
+                    {!isEditing && (
+                      <DialogClose asChild>
+                        <button type="button" className="px-4 py-2 rounded-md border border-border">Close</button>
+                      </DialogClose>
+                    )}
+                    <div className="ml-auto flex gap-2">
+                      {isEditing ? (
+                        <>
+                          <button onClick={() => { setIsEditing(false); setViewPost(null); setIsViewOpen(false); }} type="button" className="px-4 py-2 rounded-md border">Cancel</button>
+                          <button type="submit" className="px-4 py-2 rounded-md bg-primary text-primary-foreground">Save changes</button>
+                        </>
+                      ) : (
+                        <button onClick={() => setIsEditing(true)} type="button" className="px-4 py-2 rounded-md border">Edit</button>
+                      )}
+                    </div>
+                  </DialogFooter>
                 </form>
               )}
             </DialogContent>

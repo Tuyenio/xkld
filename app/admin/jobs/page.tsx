@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
+import { Link as LinkIcon, Image as ImageIcon } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { PremiumButton } from '@/components/premium-button'
 import { Input } from '@/components/ui/input'
@@ -70,15 +71,32 @@ export default function AdminJobsPage() {
   const [newRequirements, setNewRequirements] = useState('')
   const [newResponsibilities, setNewResponsibilities] = useState('')
   const [newApplication, setNewApplication] = useState('')
+  const [newDescriptionHtml, setNewDescriptionHtml] = useState('')
+  const [newResponsibilitiesHtml, setNewResponsibilitiesHtml] = useState('')
+  const [newRequirementsHtml, setNewRequirementsHtml] = useState('')
+  const newEditorRef = useRef<HTMLDivElement | null>(null)
+  const newRespRef = useRef<HTMLDivElement | null>(null)
+  const newReqRef = useRef<HTMLDivElement | null>(null)
+  const [showNewLinkInput, setShowNewLinkInput] = useState(false)
+  const [newLinkUrl, setNewLinkUrl] = useState('')
+  const [showNewImageInput, setShowNewImageInput] = useState(false)
+  const [newImageUploadPreview, setNewImageUploadPreview] = useState<string | null>(null)
 
   // View / Edit job modal
   const [viewJob, setViewJob] = useState<any | null>(null)
   const [isViewOpen, setIsViewOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const viewEditorRef = useRef<HTMLDivElement | null>(null)
+  const viewRespRef = useRef<HTMLDivElement | null>(null)
+  const viewReqRef = useRef<HTMLDivElement | null>(null)
+  const [showViewLinkInput, setShowViewLinkInput] = useState(false)
+  const [viewLinkUrl, setViewLinkUrl] = useState('')
+  const [showViewImageInput, setShowViewImageInput] = useState(false)
+  const [viewImageUploadPreview, setViewImageUploadPreview] = useState<string | null>(null)
 
-  const openView = (job: any) => {
+  const openView = (job: any, edit = false) => {
     setViewJob(job)
-    setIsEditing(false)
+    setIsEditing(!!edit)
     setIsViewOpen(true)
   }
 
@@ -87,6 +105,17 @@ export default function AdminJobsPage() {
     setJobs((prev) => prev.map((j) => (j.id === viewJob.id ? viewJob : j)))
     setIsEditing(false)
     setIsViewOpen(false)
+  }
+
+  const transformContentCase = (mode: 'lower' | 'upper' | 'title' | 'sentence') => {
+    if (!viewJob) return
+    const orig = viewJob.description || ''
+    let next = orig
+    if (mode === 'lower') next = orig.toLowerCase()
+    if (mode === 'upper') next = orig.toUpperCase()
+    if (mode === 'title') next = orig.replace(/\w\S*/g, (txt: string) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())
+    if (mode === 'sentence') next = orig.replace(/(^|[.!?]\s+)([a-z])/, (m: string, p1: string, p2: string) => p1 + p2.toUpperCase())
+    setViewJob({ ...viewJob, description: next })
   }
 
   const filteredJobs = useMemo(() => {
@@ -168,7 +197,7 @@ export default function AdminJobsPage() {
                   Create Job
                 </PremiumButton>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-3xl rounded-2xl border border-border/60">
+                <DialogContent className="w-full sm:max-w-3xl rounded-2xl border border-border/60 max-h-[90vh] overflow-hidden">
                 <DialogHeader>
                   <DialogTitle>Create Job</DialogTitle>
                   <DialogDescription>Enter job details for publishing.</DialogDescription>
@@ -210,6 +239,7 @@ export default function AdminJobsPage() {
                   }}
                   className="grid gap-3 py-2"
                 >
+                  <div className="relative overflow-y-auto max-h-[72vh] px-0 py-2 pb-40 rounded-b-lg overflow-hidden">
                   <div className="grid sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-sm text-muted-foreground">Title</label>
@@ -232,16 +262,87 @@ export default function AdminJobsPage() {
                   </div>
                   <div>
                     <label className="text-sm text-muted-foreground">Description</label>
-                    <textarea value={newDescription} onChange={(e) => setNewDescription(e.target.value)} className="w-full px-3 py-2 border border-border rounded-md min-h-[120px]" />
+                    <div className="border border-border rounded-md bg-white">
+                      <div className="flex flex-wrap items-center gap-2 p-2 border-b border-border/60 bg-muted/5">
+                        <button type="button" onClick={() => document.execCommand('bold')} className="px-2 py-1 rounded text-sm">B</button>
+                        <button type="button" onClick={() => document.execCommand('italic')} className="px-2 py-1 rounded text-sm">I</button>
+                        <button type="button" onClick={() => document.execCommand('underline')} className="px-2 py-1 rounded text-sm">U</button>
+                        <div className="relative">
+                          <button type="button" onClick={() => { setShowNewLinkInput((s) => !s); setShowNewImageInput(false) }} className="px-2 py-1 rounded text-sm flex items-center gap-1">
+                            <LinkIcon size={14} />
+                          </button>
+                          {showNewLinkInput && (
+                            <div className="absolute z-20 mt-2 bg-white border border-border rounded-md p-2 shadow-md w-64">
+                              <div className="text-xs text-muted-foreground mb-1">Insert link URL</div>
+                              <input value={newLinkUrl} onChange={(e) => setNewLinkUrl(e.target.value)} placeholder="https://example.com" className="w-full px-2 py-1 border border-border rounded-md mb-2" />
+                              <div className="flex justify-end gap-2">
+                                <button type="button" onClick={() => { setShowNewLinkInput(false); setNewLinkUrl('') }} className="px-2 py-1 rounded border text-sm">Cancel</button>
+                                <button type="button" onClick={() => { if (newLinkUrl) { document.execCommand('createLink', false, newLinkUrl); setShowNewLinkInput(false); setNewLinkUrl('') } }} className="px-2 py-1 rounded bg-primary text-primary-foreground text-sm">Insert</button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <button type="button" onClick={() => { setShowNewImageInput((s) => !s); setShowNewLinkInput(false) }} className="px-2 py-1 rounded text-sm flex items-center gap-1">
+                            <ImageIcon size={14} />
+                          </button>
+                          {showNewImageInput && (
+                            <div className="absolute z-20 mt-2 bg-white border border-border rounded-md p-3 shadow-md w-72">
+                              <div className="text-xs text-muted-foreground mb-1">Insert image</div>
+                              <input type="text" value={newImageUploadPreview || ''} onChange={(e) => setNewImageUploadPreview(e.target.value)} placeholder="Image URL (or upload below)" className="w-full px-2 py-1 border border-border rounded-md mb-2" />
+                              <div className="mb-2">
+                                <div className="text-xs text-muted-foreground mb-1">Or upload</div>
+                                <input type="file" accept="image/*" onChange={(ev) => {
+                                  const f = ev.target.files && ev.target.files[0]
+                                  if (f) {
+                                    if (newImageUploadPreview) URL.revokeObjectURL(newImageUploadPreview)
+                                    const url = URL.createObjectURL(f)
+                                    setNewImageUploadPreview(url)
+                                  }
+                                }} />
+                                {newImageUploadPreview && (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img src={newImageUploadPreview} alt="preview" className="mt-2 w-full h-28 object-cover rounded" />
+                                )}
+                              </div>
+                              <div className="flex justify-end gap-2">
+                                <button type="button" onClick={() => { setShowNewImageInput(false); if (newImageUploadPreview) { URL.revokeObjectURL(newImageUploadPreview); setNewImageUploadPreview(null) } }} className="px-2 py-1 rounded border text-sm">Cancel</button>
+                                <button type="button" onClick={() => { const url = newImageUploadPreview; if (url) { document.execCommand('insertImage', false, url); setShowNewImageInput(false); setNewImageUploadPreview(null) } }} className="px-2 py-1 rounded bg-primary text-primary-foreground text-sm">Insert</button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div
+                        ref={newEditorRef}
+                        contentEditable
+                        suppressContentEditableWarning
+                        onInput={(e) => setNewDescriptionHtml((e.target as HTMLDivElement).innerHTML)}
+                        className="min-h-[140px] p-3"
+                        dangerouslySetInnerHTML={{ __html: newDescriptionHtml }}
+                      />
+                    </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-sm text-muted-foreground">Responsibilities</label>
-                      <textarea value={newResponsibilities} onChange={(e) => setNewResponsibilities(e.target.value)} className="w-full px-3 py-2 border border-border rounded-md min-h-[80px]" />
+                        <div className="border border-border rounded-md bg-white">
+                          <div className="flex items-center gap-2 p-2 border-b border-border/60 bg-muted/5">
+                            <button type="button" onClick={() => document.execCommand('insertUnorderedList')} className="px-2 py-1 rounded text-sm">UL</button>
+                            <button type="button" onClick={() => document.execCommand('insertOrderedList')} className="px-2 py-1 rounded text-sm">OL</button>
+                          </div>
+                          <div ref={newRespRef} contentEditable suppressContentEditableWarning onInput={(e) => setNewResponsibilitiesHtml((e.target as HTMLDivElement).innerHTML)} className="min-h-[80px] p-3" dangerouslySetInnerHTML={{ __html: newResponsibilitiesHtml }} />
+                        </div>
                     </div>
                     <div>
                       <label className="text-sm text-muted-foreground">Requirements</label>
-                      <textarea value={newRequirements} onChange={(e) => setNewRequirements(e.target.value)} className="w-full px-3 py-2 border border-border rounded-md min-h-[80px]" />
+                      <div className="border border-border rounded-md bg-white">
+                        <div className="flex flex-wrap items-center gap-2 p-2 border-b border-border/60 bg-muted/5">
+                          <button type="button" onClick={() => document.execCommand('insertUnorderedList')} className="px-2 py-1 rounded text-sm">UL</button>
+                          <button type="button" onClick={() => document.execCommand('insertOrderedList')} className="px-2 py-1 rounded text-sm">OL</button>
+                        </div>
+                        <div ref={newReqRef} contentEditable suppressContentEditableWarning onInput={(e) => setNewRequirementsHtml((e.target as HTMLDivElement).innerHTML)} className="min-h-[80px] p-3" dangerouslySetInnerHTML={{ __html: newRequirementsHtml }} />
+                      </div>
                     </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-3">
@@ -249,7 +350,8 @@ export default function AdminJobsPage() {
                     <input placeholder="Tags (comma separated)" className="px-3 py-2 border border-border rounded-md" />
                   </div>
 
-                  <DialogFooter>
+                  </div>
+                  <DialogFooter className="sticky bottom-0 bg-background/70 backdrop-blur py-3 flex justify-end gap-2 border-t border-border/10">
                     <DialogClose asChild>
                       <button type="button" className="px-4 py-2 rounded-md border border-border">Cancel</button>
                     </DialogClose>
@@ -269,7 +371,7 @@ export default function AdminJobsPage() {
 
           {/* Search and Filter */}
           <Card className="admin-card p-4">
-            <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="admin-control flex flex-1 items-center rounded-lg bg-muted px-4">
                 <Search size={20} className="text-muted-foreground" />
                 <Input
@@ -293,14 +395,15 @@ export default function AdminJobsPage() {
           </Card>
           {/* View / Edit Job Dialog */}
           <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-            <DialogContent className="sm:max-w-3xl rounded-2xl border border-border/60">
+              <DialogContent className="w-full sm:max-w-3xl rounded-2xl border border-border/60">
               <DialogHeader>
                 <DialogTitle>{isEditing ? 'Edit Job' : 'Job details'}</DialogTitle>
                 <DialogDescription>Full details of the job posting.</DialogDescription>
               </DialogHeader>
 
-              {viewJob && (
-                <form className="grid gap-4 py-2" onSubmit={(e) => { e.preventDefault(); saveViewEdits(); }}>
+                  {viewJob && (
+                    <form className="grid gap-4 py-2" onSubmit={(e) => { e.preventDefault(); saveViewEdits(); }}>
+                  <div className="overflow-y-auto max-h-[72vh] px-0 py-2 pb-28">
                   <div className="grid sm:grid-cols-2 gap-4 items-start">
                     <div>
                       <label className="text-sm text-muted-foreground">Title</label>
@@ -326,6 +429,18 @@ export default function AdminJobsPage() {
                         )}
                       </div>
                       <div className="flex items-center justify-end gap-2">
+                        <span className="text-xs">Status</span>
+                        {isEditing ? (
+                          <select value={viewJob.status} onChange={(e) => setViewJob({ ...viewJob, status: e.target.value })} className="px-2 py-1 border border-border rounded-md">
+                            <option>Active</option>
+                            <option>Draft</option>
+                            <option>Closed</option>
+                          </select>
+                        ) : (
+                          <span className="px-2 py-1 rounded-full bg-muted/20">{viewJob.status || '—'}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-end gap-2">
                         <span className="text-xs">Salary</span>
                         {isEditing ? (
                           <input value={viewJob.salary || ''} onChange={(e) => setViewJob({ ...viewJob, salary: e.target.value })} className="px-2 py-1 border border-border rounded-md" />
@@ -340,9 +455,68 @@ export default function AdminJobsPage() {
                   <div>
                     <label className="text-sm text-muted-foreground">Description</label>
                     {isEditing ? (
-                      <textarea value={viewJob.description} onChange={(e) => setViewJob({ ...viewJob, description: e.target.value })} className="w-full px-3 py-2 border border-border rounded-md min-h-[140px]" />
+                      <div className="border border-border rounded-md bg-white">
+                        <div className="flex items-center gap-2 p-2 border-b border-border/60 bg-muted/5">
+                          <button type="button" onClick={() => document.execCommand('bold')} className="px-2 py-1 rounded text-sm">B</button>
+                          <button type="button" onClick={() => document.execCommand('italic')} className="px-2 py-1 rounded text-sm">I</button>
+                          <button type="button" onClick={() => document.execCommand('underline')} className="px-2 py-1 rounded text-sm">U</button>
+                          <div className="relative">
+                            <button type="button" onClick={() => { setShowViewLinkInput((s) => !s); setShowViewImageInput(false) }} className="px-2 py-1 rounded text-sm flex items-center gap-1">
+                              <LinkIcon size={14} />
+                            </button>
+                            {showViewLinkInput && (
+                              <div className="absolute z-20 mt-2 bg-white border border-border rounded-md p-2 shadow-md w-64">
+                                <div className="text-xs text-muted-foreground mb-1">Insert link URL</div>
+                                <input value={viewLinkUrl} onChange={(e) => setViewLinkUrl(e.target.value)} placeholder="https://example.com" className="w-full px-2 py-1 border border-border rounded-md mb-2" />
+                                <div className="flex justify-end gap-2">
+                                  <button type="button" onClick={() => { setShowViewLinkInput(false); setViewLinkUrl('') }} className="px-2 py-1 rounded border text-sm">Cancel</button>
+                                  <button type="button" onClick={() => { if (viewLinkUrl && viewEditorRef.current) { document.execCommand('createLink', false, viewLinkUrl); setShowViewLinkInput(false); setViewLinkUrl('') } }} className="px-2 py-1 rounded bg-primary text-primary-foreground text-sm">Insert</button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <div className="relative">
+                            <button type="button" onClick={() => { setShowViewImageInput((s) => !s); setShowViewLinkInput(false) }} className="px-2 py-1 rounded text-sm flex items-center gap-1">
+                              <ImageIcon size={14} />
+                            </button>
+                            {showViewImageInput && (
+                              <div className="absolute z-20 mt-2 bg-white border border-border rounded-md p-3 shadow-md w-72">
+                                <div className="text-xs text-muted-foreground mb-1">Insert image</div>
+                                <input type="text" value={viewImageUploadPreview || ''} onChange={(e) => setViewImageUploadPreview(e.target.value)} placeholder="Image URL (or upload below)" className="w-full px-2 py-1 border border-border rounded-md mb-2" />
+                                <div className="mb-2">
+                                  <div className="text-xs text-muted-foreground mb-1">Or upload</div>
+                                  <input type="file" accept="image/*" onChange={(ev) => {
+                                    const f = ev.target.files && ev.target.files[0]
+                                    if (f) {
+                                      if (viewImageUploadPreview) URL.revokeObjectURL(viewImageUploadPreview)
+                                      const url = URL.createObjectURL(f)
+                                      setViewImageUploadPreview(url)
+                                    }
+                                  }} />
+                                  {viewImageUploadPreview && (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={viewImageUploadPreview} alt="preview" className="mt-2 w-full h-28 object-cover rounded" />
+                                  )}
+                                </div>
+                                <div className="flex justify-end gap-2">
+                                  <button type="button" onClick={() => { setShowViewImageInput(false); if (viewImageUploadPreview) { URL.revokeObjectURL(viewImageUploadPreview); setViewImageUploadPreview(null) } }} className="px-2 py-1 rounded border text-sm">Cancel</button>
+                                  <button type="button" onClick={() => { const url = viewImageUploadPreview; if (url && viewEditorRef.current) { document.execCommand('insertImage', false, url); setShowViewImageInput(false); setViewImageUploadPreview(null) } }} className="px-2 py-1 rounded bg-primary text-primary-foreground text-sm">Insert</button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <div className="ml-auto flex items-center gap-2">
+                            <div className="text-xs text-muted-foreground">Case:</div>
+                            <button type="button" onClick={() => { if (viewEditorRef.current) { viewEditorRef.current.innerText = viewEditorRef.current.innerText.toLowerCase(); setViewJob({ ...viewJob, description: viewEditorRef.current.innerHTML }) } }} className="px-2 py-1 rounded text-sm">lower</button>
+                            <button type="button" onClick={() => { if (viewEditorRef.current) { viewEditorRef.current.innerText = viewEditorRef.current.innerText.toUpperCase(); setViewJob({ ...viewJob, description: viewEditorRef.current.innerHTML }) } }} className="px-2 py-1 rounded text-sm">UPPER</button>
+                          </div>
+                        </div>
+                        <div className="min-h-[140px] p-3 border-t border-border/10">
+                          <div ref={viewEditorRef} contentEditable suppressContentEditableWarning onInput={(e) => setViewJob({ ...viewJob, description: (e.target as HTMLDivElement).innerHTML })} className="min-h-[140px]" dangerouslySetInnerHTML={{ __html: viewJob.description || '' }} />
+                        </div>
+                      </div>
                     ) : (
-                      <div className="prose text-sm text-muted-foreground whitespace-pre-line">{viewJob.description}</div>
+                      <div className="prose text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: viewJob.description || '' }} />
                     )}
                   </div>
 
@@ -350,18 +524,30 @@ export default function AdminJobsPage() {
                     <div>
                       <label className="text-sm text-muted-foreground">Responsibilities</label>
                       {isEditing ? (
-                        <textarea value={viewJob.responsibilities} onChange={(e) => setViewJob({ ...viewJob, responsibilities: e.target.value })} className="w-full px-3 py-2 border border-border rounded-md min-h-[100px]" />
-                      ) : (
-                        <div className="text-sm text-muted-foreground whitespace-pre-line">{viewJob.responsibilities}</div>
-                      )}
+                          <div className="border border-border rounded-md bg-white">
+                            <div className="flex items-center gap-2 p-2 border-b border-border/60 bg-muted/5">
+                              <button type="button" onClick={() => document.execCommand('insertUnorderedList')} className="px-2 py-1 rounded text-sm">UL</button>
+                              <button type="button" onClick={() => document.execCommand('insertOrderedList')} className="px-2 py-1 rounded text-sm">OL</button>
+                            </div>
+                            <div ref={viewRespRef} contentEditable suppressContentEditableWarning onInput={(e) => setViewJob({ ...viewJob, responsibilities: (e.target as HTMLDivElement).innerHTML })} className="min-h-[100px] p-3" dangerouslySetInnerHTML={{ __html: viewJob.responsibilities || '' }} />
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: viewJob.responsibilities || '' }} />
+                        )}
                     </div>
                     <div>
                       <label className="text-sm text-muted-foreground">Requirements</label>
-                      {isEditing ? (
-                        <textarea value={viewJob.requirements} onChange={(e) => setViewJob({ ...viewJob, requirements: e.target.value })} className="w-full px-3 py-2 border border-border rounded-md min-h-[100px]" />
-                      ) : (
-                        <div className="text-sm text-muted-foreground whitespace-pre-line">{viewJob.requirements}</div>
-                      )}
+                        {isEditing ? (
+                          <div className="border border-border rounded-md bg-white">
+                            <div className="flex items-center gap-2 p-2 border-b border-border/60 bg-muted/5">
+                              <button type="button" onClick={() => document.execCommand('insertUnorderedList')} className="px-2 py-1 rounded text-sm">UL</button>
+                              <button type="button" onClick={() => document.execCommand('insertOrderedList')} className="px-2 py-1 rounded text-sm">OL</button>
+                            </div>
+                            <div ref={viewReqRef} contentEditable suppressContentEditableWarning onInput={(e) => setViewJob({ ...viewJob, requirements: (e.target as HTMLDivElement).innerHTML })} className="min-h-[100px] p-3" dangerouslySetInnerHTML={{ __html: viewJob.requirements || '' }} />
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: viewJob.requirements || '' }} />
+                        )}
                     </div>
                   </div>
 
@@ -374,14 +560,15 @@ export default function AdminJobsPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-sm text-muted-foreground">Applications: <strong className="ml-1">{viewJob.applications}</strong></div>
+                  </div>
+                  <DialogFooter className="absolute bottom-0 left-0 right-0 z-50 bg-background px-4 sm:px-6 py-3 flex items-center gap-2 border-t border-border/10 rounded-b-lg shadow-md">
+                    <div className="text-sm text-muted-foreground mr-auto">Applications: <strong className="ml-1">{viewJob.applications}</strong></div>
+                    {!isEditing && (
+                      <DialogClose asChild>
+                        <button type="button" className="px-4 py-2 rounded-md border border-border">Close</button>
+                      </DialogClose>
+                    )}
                     <div className="flex items-center gap-2">
-                      {!isEditing && (
-                        <DialogClose asChild>
-                          <button type="button" className="px-4 py-2 rounded-md border border-border">Close</button>
-                        </DialogClose>
-                      )}
                       {isEditing ? (
                         <>
                           <button onClick={() => { setIsEditing(false); }} type="button" className="px-4 py-2 rounded-md border">Cancel</button>
@@ -391,7 +578,7 @@ export default function AdminJobsPage() {
                         <button onClick={() => setIsEditing(true)} type="button" className="px-4 py-2 rounded-md border">Edit</button>
                       )}
                     </div>
-                  </div>
+                  </DialogFooter>
                 </form>
               )}
             </DialogContent>
@@ -399,8 +586,8 @@ export default function AdminJobsPage() {
 
           {/* Jobs Table */}
           <Card className="admin-card p-5">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px]">
+              <div className="overflow-x-auto">
+              <table className="w-full min-w-0">
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left py-3 px-4 font-semibold text-foreground">Job Title</th>
@@ -437,8 +624,7 @@ export default function AdminJobsPage() {
                           <button
                             className="admin-interactive rounded-lg p-2 hover:bg-muted"
                             title="Edit"
-                            onClick={() => handleToggleStatus(job.id)}
-                            disabled={pendingJobId === job.id}
+                            onClick={() => openView(job, true)}
                           >
                             <Edit2 size={18} className="text-muted-foreground hover:text-foreground" />
                           </button>
