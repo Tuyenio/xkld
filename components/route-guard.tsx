@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect } from 'react'
+import type { ReactNode } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { getSession } from '@/lib/session'
 
 type RouteGuardProps = {
-  children: React.ReactNode
+  children: ReactNode
   redirectTo?: string
 }
 
@@ -27,4 +28,5 @@ export function RouteGuard({ children, redirectTo = '/login' }: RouteGuardProps)
 
   return <>{children}</>
 }
+
 

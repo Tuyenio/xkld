@@ -17,50 +17,9 @@ import { useId } from 'react'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { PremiumModal } from '@/components/premium-modal'
-import { Search, UserPlus, Shield, Mail, Phone, Radio, Eye, EyeOff, Lock } from 'lucide-react'
-
-const initialUsers = [
-  {
-    id: 1,
-    name: 'Truong Minh Tuan',
-    email: 'tuan@example.com',
-    phone: '+84 93 123 7890',
-    role: 'admin',
-    status: 'active',
-    verified: true,
-    joinedAt: '2026-01-12',
-  },
-  {
-    id: 2,
-    name: 'Pham Gia Linh',
-    email: 'linh@example.com',
-    phone: '+84 97 333 2221',
-    role: 'recruiter',
-    status: 'active',
-    verified: true,
-    joinedAt: '2026-02-03',
-  },
-  {
-    id: 3,
-    name: 'Le Hoang Nam',
-    email: 'nam@example.com',
-    phone: '+84 98 888 1100',
-    role: 'editor',
-    status: 'pending',
-    verified: false,
-    joinedAt: '2026-03-18',
-  },
-  {
-    id: 4,
-    name: 'Nguyen Bao Han',
-    email: 'han@example.com',
-    phone: '+84 90 444 7712',
-    role: 'support',
-    status: 'inactive',
-    verified: false,
-    joinedAt: '2026-03-25',
-  },
-]
+import { Search, UserPlus, Shield, Mail, Phone, Radio, Eye, EyeOff } from 'lucide-react'
+import { apiClient, type AdminUser } from '@/lib/api-client'
+import { toApiErrorMessage } from '@/lib/api-errors'
 
 function roleBadge(role: string) {
   if (role === 'admin') return 'default'
@@ -69,7 +28,7 @@ function roleBadge(role: string) {
 }
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState(initialUsers)
+  const [users, setUsers] = useState<AdminUser[]>([])
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [newName, setNewName] = useState('')
   const [newEmail, setNewEmail] = useState('')
@@ -85,8 +44,18 @@ export default function AdminUsersPage() {
   const formId = useId()
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
-  const [pendingUserId, setPendingUserId] = useState<number | null>(null)
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null)
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null)
+
+  const loadUsers = async () => {
+    try {
+      const result = await apiClient.admin.listUsers()
+      setUsers(result)
+      setLastSyncedAt(new Date())
+    } catch (error) {
+      setPasswordError(toApiErrorMessage(error, 'Could not load users.'))
+    }
+  }
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -98,26 +67,10 @@ export default function AdminUsersPage() {
   }, [users, query, roleFilter])
 
   useEffect(() => {
-    // set initial time on client to avoid SSR/CSR mismatch
-    setLastSyncedAt(new Date())
-    const timer = window.setInterval(() => {
-      if (document.visibilityState !== 'visible') return
-      setUsers((prev) => {
-        if (prev.length === 0) return prev
-        const idx = Math.floor(Math.random() * prev.length)
-        return prev.map((user, i) => {
-          if (i !== idx) return user
-          if (user.status === 'pending') return { ...user, status: 'active' }
-          return user
-        })
-      })
-      setLastSyncedAt(new Date())
-    }, 15000)
-
-    return () => window.clearInterval(timer)
+    void loadUsers()
   }, [])
 
-  const toggleStatus = (id: number) => {
+  const toggleStatus = async (id: string) => {
     const current = users.find((user) => user.id === id)
     if (!current) return
 
@@ -126,31 +79,34 @@ export default function AdminUsersPage() {
     setPendingUserId(id)
     setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, status: nextStatus } : user)))
 
-    window.setTimeout(() => {
-      const failed = Math.random() < 0.08
-      if (failed) {
-        setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, status: prevStatus } : user)))
-      } else {
-        setLastSyncedAt(new Date())
-      }
+    try {
+      const updated = await apiClient.admin.updateUser(id, { status: nextStatus })
+      setUsers((prev) => prev.map((user) => (user.id === id ? updated : user)))
+      setLastSyncedAt(new Date())
+    } catch {
+      setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, status: prevStatus } : user)))
+    } finally {
       setPendingUserId(null)
-    }, 500)
+    }
   }
 
-  const toggleVerify = (id: number) => {
-    setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, verified: !user.verified } : user)))
+  const toggleVerify = async (id: string) => {
+    const current = users.find((user) => user.id === id)
+    if (!current) return
+    const updated = await apiClient.admin.updateUser(id, {
+      verified: !current.verified,
+    })
+    setUsers((prev) => prev.map((user) => (user.id === id ? updated : user)))
   }
 
-  const rotateRole = (id: number) => {
+  const rotateRole = async (id: string) => {
     const roles = ['admin', 'recruiter', 'editor', 'support'] as const
-    setUsers((prev) =>
-      prev.map((user) => {
-        if (user.id !== id) return user
-        const idx = roles.indexOf(user.role as (typeof roles)[number])
-        const nextRole = roles[(idx + 1) % roles.length]
-        return { ...user, role: nextRole }
-      })
-    )
+    const current = users.find((user) => user.id === id)
+    if (!current) return
+    const idx = roles.indexOf(current.role as (typeof roles)[number])
+    const nextRole = roles[(idx + 1) % roles.length]
+    const updated = await apiClient.admin.updateUser(id, { role: nextRole })
+    setUsers((prev) => prev.map((user) => (user.id === id ? updated : user)))
   }
 
   return (
@@ -179,7 +135,7 @@ export default function AdminUsersPage() {
 
                 <form
                   id={formId}
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault()
                     // basic validation
                     setPasswordError('')
@@ -193,21 +149,22 @@ export default function AdminUsersPage() {
                       setConfirmError('Mật khẩu xác nhận không khớp')
                       return
                     }
-                    const nextId = users.length ? Math.max(...users.map((u) => u.id)) + 1 : 1
-                    const joinedAt = new Date().toISOString().split('T')[0]
-                    const created = {
-                      id: nextId,
-                      name: newName.trim(),
-                      email: newEmail.trim(),
-                      phone: newPhone.trim(),
-                      role: newRole,
-                      status: 'active',
-                      verified: newVerified,
-                      joinedAt,
-                      // Note: demo only — passwords should be hashed server-side
-                      password: newPassword,
+                    try {
+                      const created = await apiClient.admin.createUser({
+                        name: newName.trim(),
+                        email: newEmail.trim(),
+                        phone: newPhone.trim(),
+                        role: newRole,
+                        status: 'active',
+                        verified: newVerified,
+                        password: newPassword,
+                      })
+                      setUsers((prev) => [created, ...prev])
+                      setLastSyncedAt(new Date())
+                    } catch (error) {
+                      setPasswordError(toApiErrorMessage(error, 'Không thể tạo người dùng mới'))
+                      return
                     }
-                    setUsers((prev) => [created, ...prev])
                     // reset form
                     setNewName('')
                     setNewEmail('')

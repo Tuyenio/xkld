@@ -4,55 +4,26 @@ import { useEffect, useMemo, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Eye, Archive, Search, Check, X, Radio } from 'lucide-react'
+import { apiClient, type AdminApplication } from '@/lib/api-client'
+import { toApiErrorMessage } from '@/lib/api-errors'
 
 export default function AdminApplicationsPage() {
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [message, setMessage] = useState('')
-  const [pendingApplicationId, setPendingApplicationId] = useState<number | null>(null)
+  const [pendingApplicationId, setPendingApplicationId] = useState<string | null>(null)
   const [lastSyncedAt, setLastSyncedAt] = useState(() => new Date())
-  const [applications, setApplications] = useState([
-    {
-      id: 1,
-      candidate: 'Nguyễn Văn Nam',
-      job: 'Senior Software Engineer',
-      status: 'Interview',
-      appliedDate: '2024-03-10',
-      score: 92,
-    },
-    {
-      id: 2,
-      candidate: 'Trần Thị Hương',
-      job: 'Product Manager',
-      status: 'Under Review',
-      appliedDate: '2024-03-05',
-      score: 85,
-    },
-    {
-      id: 3,
-      candidate: 'Hoàng Văn Tú',
-      job: 'UX Designer',
-      status: 'New',
-      appliedDate: '2024-03-13',
-      score: null,
-    },
-    {
-      id: 4,
-      candidate: 'Lê Thị Linh',
-      job: 'DevOps Engineer',
-      status: 'Interview',
-      appliedDate: '2024-03-12',
-      score: 88,
-    },
-    {
-      id: 5,
-      candidate: 'Phạm Văn Hòa',
-      job: 'Senior Software Engineer',
-      status: 'New',
-      appliedDate: '2024-03-14',
-      score: null,
-    },
-  ])
+  const [applications, setApplications] = useState<AdminApplication[]>([])
+
+  const loadApplications = async () => {
+    try {
+      const result = await apiClient.admin.listApplications()
+      setApplications(result)
+      setLastSyncedAt(new Date())
+    } catch (error) {
+      setMessage(toApiErrorMessage(error, 'Could not load applications.'))
+    }
+  }
 
   const filteredApplications = useMemo(() => {
     return applications.filter((app) => {
@@ -64,23 +35,7 @@ export default function AdminApplicationsPage() {
   }, [applications, query, statusFilter])
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      if (document.visibilityState !== 'visible') return
-      setApplications((prev) => {
-        if (prev.length === 0) return prev
-        const idx = Math.floor(Math.random() * prev.length)
-        return prev.map((app, i) => {
-          if (i !== idx) return app
-          if (app.score == null) return app
-          const delta = Math.random() > 0.5 ? 1 : -1
-          const nextScore = Math.max(60, Math.min(99, app.score + delta))
-          return { ...app, score: nextScore }
-        })
-      })
-      setLastSyncedAt(new Date())
-    }, 10000)
-
-    return () => window.clearInterval(timer)
+    void loadApplications()
   }, [])
 
   const getStatusColor = (status: string) => {
@@ -98,7 +53,7 @@ export default function AdminApplicationsPage() {
     }
   }
 
-  const updateStatus = (id: number, status: string) => {
+  const updateStatus = async (id: string, status: string) => {
     const current = applications.find((app) => app.id === id)
     if (!current) return
 
@@ -107,22 +62,28 @@ export default function AdminApplicationsPage() {
     setApplications((prev) => prev.map((app) => (app.id === id ? { ...app, status } : app)))
     setMessage(`Syncing application #${id}...`)
 
-    window.setTimeout(() => {
-      const failed = Math.random() < 0.08
-      if (failed) {
-        setApplications((prev) => prev.map((app) => (app.id === id ? { ...app, status: prevStatus } : app)))
-        setMessage(`Sync failed for application #${id}. Rolled back.`)
-      } else {
-        setMessage(`Application #${id} updated to ${status}`)
-        setLastSyncedAt(new Date())
-      }
+    try {
+      const updated = await apiClient.admin.updateApplicationStatus(id, status)
+      setApplications((prev) => prev.map((app) => (app.id === id ? updated : app)))
+      setMessage(`Application #${id} updated to ${status}`)
+      setLastSyncedAt(new Date())
+    } catch (error) {
+      setApplications((prev) => prev.map((app) => (app.id === id ? { ...app, status: prevStatus } : app)))
+      setMessage(toApiErrorMessage(error, `Sync failed for application #${id}.`))
+    } finally {
       setPendingApplicationId(null)
-    }, 500)
+    }
   }
 
-  const archiveApplication = (id: number) => {
-    setApplications((prev) => prev.filter((app) => app.id !== id))
-    setMessage(`Application #${id} archived`)
+  const archiveApplication = async (id: string) => {
+    try {
+      await apiClient.admin.deleteApplication(id)
+      setApplications((prev) => prev.filter((app) => app.id !== id))
+      setMessage(`Application #${id} archived`)
+      setLastSyncedAt(new Date())
+    } catch (error) {
+      setMessage(toApiErrorMessage(error, 'Could not archive application.'))
+    }
   }
 
   return (

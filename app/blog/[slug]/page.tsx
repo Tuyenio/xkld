@@ -6,30 +6,13 @@ import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { ScrollProgressBar } from '@/components/scroll-progress-bar'
 import { ArrowRight, Calendar, Share2, User } from 'lucide-react'
+import { notFound } from 'next/navigation'
+import { getBlogPostBySlug } from '@/lib/blog-data'
 
 const SITE_URL = 'https://xkldvietdai.com'
 
-const posts = [
-  {
-    slug: 'top-10-tips-ace-taiwan-job-interview',
-    title: 'Top 10 Tips to Ace Your Taiwan Job Interview',
-    author: 'Sarah Johnson',
-    date: '2024-03-15',
-    category: 'Career Tips',
-    excerpt: 'Practical interview tactics to increase your offer rate.',
-  },
-  {
-    slug: 'guide-finding-accommodation-taipei',
-    title: 'Guide to Finding Accommodation in Taipei',
-    author: 'Mike Chen',
-    date: '2024-03-10',
-    category: 'Living in Taiwan',
-    excerpt: 'A structured framework for housing search and contracts.',
-  },
-]
-
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const post = posts.find((item) => item.slug === params.slug)
+  const post = getBlogPostBySlug(params.slug)
   if (!post) {
     return {
       title: 'Article Not Found | XKLD VietDai',
@@ -71,22 +54,25 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 }
 
 export default function BlogDetailPage({ params }: { params: { slug: string } }) {
-  const post = posts.find((item) => item.slug === params.slug)
+  const post = getBlogPostBySlug(params.slug)
+  if (!post) {
+    notFound()
+  }
 
   const articleStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: post?.title ?? 'Article',
-    datePublished: post?.date ?? '2026-04-15',
+    headline: post.title,
+    datePublished: post.date,
     author: {
       '@type': 'Person',
-      name: post?.author ?? 'XKLD Team',
+      name: post.author,
     },
     publisher: {
       '@type': 'Organization',
       name: 'XKLD VietDai',
     },
-    description: post?.excerpt ?? 'Career insights for Taiwan job market.',
+    description: post.excerpt,
     mainEntityOfPage: `https://xkldvietdai.com/blog/${params.slug}`,
   }
 
@@ -96,7 +82,7 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://xkldvietdai.com' },
       { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://xkldvietdai.com/blog' },
-      { '@type': 'ListItem', position: 3, name: post?.title ?? 'Article', item: `https://xkldvietdai.com/blog/${params.slug}` },
+      { '@type': 'ListItem', position: 3, name: post.title, item: `https://xkldvietdai.com/blog/${params.slug}` },
     ],
   }
 
@@ -109,13 +95,13 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
       <section className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
           <article className="lg:col-span-3">
-            <p className="badge-premium mb-4">{post?.category ?? 'Article'}</p>
+            <p className="badge-premium mb-4">{post.category}</p>
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 text-balance">
-              {post?.title ?? 'Article not found'}
+              {post.title}
             </h1>
             <div className="flex items-center gap-4 text-sm text-muted-foreground mb-8">
-              <span className="inline-flex items-center gap-1"><User size={14} />{post?.author ?? 'XKLD Team'}</span>
-              <span className="inline-flex items-center gap-1"><Calendar size={14} />{post?.date ?? '-'}</span>
+              <span className="inline-flex items-center gap-1"><User size={14} />{post.author}</span>
+              <span className="inline-flex items-center gap-1"><Calendar size={14} />{post.date}</span>
             </div>
 
             <GlassCard className="p-8 space-y-5 leading-relaxed text-muted-foreground">

@@ -7,15 +7,29 @@ import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { Input } from '@/components/ui/input'
 import { BrandLogo } from '@/components/brand-logo'
+import { apiClient } from '@/lib/api-client'
+import { toApiErrorMessage } from '@/lib/api-errors'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSubmitError('')
     if (!email) return
-    setSubmitted(true)
+
+    setIsSubmitting(true)
+    try {
+      await apiClient.auth.forgotPassword({ email })
+      setSubmitted(true)
+    } catch (error) {
+      setSubmitError(toApiErrorMessage(error, 'Could not send reset link. Please try again.'))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -55,7 +69,9 @@ export default function ForgotPasswordPage() {
                     </div>
                   </div>
 
-                  <PremiumButton type="submit" variant="primary" size="lg" className="w-full">
+                  {submitError && <p className="text-sm text-destructive">{submitError}</p>}
+
+                  <PremiumButton type="submit" variant="primary" size="lg" className="w-full" isLoading={isSubmitting}>
                     Send Reset Link
                   </PremiumButton>
                 </form>

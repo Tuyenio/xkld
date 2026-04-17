@@ -4,6 +4,11 @@ import Link from 'next/link'
 import { Facebook, Linkedin, Mail, Phone } from 'lucide-react'
 import { BrandLogo } from '@/components/brand-logo'
 
+const socialLinks = {
+  facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL || '',
+  linkedin: process.env.NEXT_PUBLIC_LINKEDIN_URL || '',
+}
+
 export default function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground mt-20">
@@ -88,12 +93,16 @@ export default function Footer() {
                 </a>
               </div>
               <div className="flex gap-3 mt-4">
-                <a href="#" className="hover:text-secondary transition-colors">
-                  <Facebook size={20} />
-                </a>
-                <a href="#" className="hover:text-secondary transition-colors">
-                  <Linkedin size={20} />
-                </a>
+                {socialLinks.facebook && (
+                  <a href={socialLinks.facebook} target="_blank" rel="noreferrer" className="hover:text-secondary transition-colors" aria-label="Facebook">
+                    <Facebook size={20} />
+                  </a>
+                )}
+                {socialLinks.linkedin && (
+                  <a href={socialLinks.linkedin} target="_blank" rel="noreferrer" className="hover:text-secondary transition-colors" aria-label="LinkedIn">
+                    <Linkedin size={20} />
+                  </a>
+                )}
               </div>
             </div>
           </div>

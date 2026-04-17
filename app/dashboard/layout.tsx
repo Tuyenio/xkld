@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { buildPrivateMetadata } from '@/lib/seo'
+import { RouteGuard } from '@/components/route-guard'
 
 export const metadata: Metadata = buildPrivateMetadata({
   title: 'Candidate Dashboard',
@@ -8,5 +9,5 @@ export const metadata: Metadata = buildPrivateMetadata({
 })
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return children
+  return <RouteGuard>{children}</RouteGuard>
 }

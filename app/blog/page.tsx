@@ -9,75 +9,7 @@ import Link from 'next/link'
 import { Calendar, User, ArrowRight, Search, TrendingUp } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { useMemo, useState } from 'react'
-
-const blogPosts = [
-  {
-    id: 1,
-    title: 'Top 10 Tips to Ace Your Taiwan Job Interview',
-    excerpt: 'Learn the secrets to impressing Taiwan employers and landing your dream job with these proven interview tips.',
-    content: 'Preparing for a job interview in Taiwan requires understanding both the position and the cultural nuances of Taiwanese businesses...',
-    author: 'Sarah Johnson',
-    date: '2024-03-15',
-    category: 'Career Tips',
-    image: '🎯',
-    readTime: 5,
-  },
-  {
-    id: 2,
-    title: 'Guide to Finding Accommodation in Taipei',
-    excerpt: 'Everything you need to know about finding the perfect place to live in Taiwan\'s bustling capital city.',
-    content: 'Finding accommodation in Taipei can seem daunting, but with the right approach and resources, you can find a great place...',
-    author: 'Mike Chen',
-    date: '2024-03-10',
-    category: 'Living in Taiwan',
-    image: '🏠',
-    readTime: 8,
-  },
-  {
-    id: 3,
-    title: 'Salary Negotiation in Taiwan: What You Need to Know',
-    excerpt: 'Master the art of negotiating your salary and benefits package in the Taiwan job market.',
-    content: 'Salary negotiation can be intimidating, but it\'s an important part of securing a good employment package...',
-    author: 'Lisa Wong',
-    date: '2024-03-05',
-    category: 'Salary & Benefits',
-    image: '💰',
-    readTime: 6,
-  },
-  {
-    id: 4,
-    title: 'Cultural Guide: Understanding Taiwanese Business Etiquette',
-    excerpt: 'Learn the cultural norms and business etiquette practices that will help you succeed in Taiwan.',
-    content: 'Understanding cultural norms is crucial when working in Taiwan. Here are the key points to remember...',
-    author: 'David Lee',
-    date: '2024-02-28',
-    category: 'Culture',
-    image: '🤝',
-    readTime: 7,
-  },
-  {
-    id: 5,
-    title: 'Tech Industry Boom in Taiwan: Job Opportunities You Shouldn\'t Miss',
-    excerpt: 'Discover why Taiwan\'s tech sector is booming and what opportunities await Vietnamese engineers.',
-    content: 'Taiwan has become a global hub for semiconductor manufacturing and software development...',
-    author: 'John Park',
-    date: '2024-02-20',
-    category: 'Industry News',
-    image: '💻',
-    readTime: 9,
-  },
-  {
-    id: 6,
-    title: 'Essential Documents for Your Taiwan Work Visa Application',
-    excerpt: 'Complete checklist of documents you\'ll need for a smooth visa application process.',
-    content: 'Preparing the right documents is essential for a successful Taiwan work visa application...',
-    author: 'Emily Zhang',
-    date: '2024-02-15',
-    category: 'Visa & Immigration',
-    image: '📋',
-    readTime: 6,
-  },
-]
+import { blogPosts } from '@/lib/blog-data'
 
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All Posts')
@@ -85,7 +17,8 @@ export default function BlogPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const postsPerPage = 6
 
-  const searchablePosts = blogPosts.slice(1)
+  const featuredPost = blogPosts.find((post) => post.status === 'Published') ?? blogPosts[0]
+  const searchablePosts = blogPosts.filter((post) => post.id !== featuredPost.id)
   const categories = useMemo(
     () => ['All Posts', ...new Set(searchablePosts.map((post) => post.category))],
     [searchablePosts]
@@ -125,7 +58,7 @@ export default function BlogPage() {
     setSelectedCategory('All Posts')
     setCurrentPage(1)
   }
-  
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -187,9 +120,9 @@ export default function BlogPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-gradient-to-br from-primary/20 via-accent/10 to-transparent p-12 flex items-center justify-center min-h-96 relative overflow-hidden">
                   <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <span className="text-9xl block">{blogPosts[0].image}</span>
+                    <span className="text-9xl block">{featuredPost.image}</span>
                   </div>
-                  <span className="text-9xl relative">{blogPosts[0].image}</span>
+                  <span className="text-9xl relative">{featuredPost.image}</span>
                 </div>
                 <div className="p-8 md:p-12 flex flex-col justify-between">
                   <div>
@@ -197,28 +130,28 @@ export default function BlogPage() {
                       <span className="bg-accent/20 text-accent text-xs font-bold px-4 py-1.5 rounded-full border border-accent/30">
                         ✨ Featured
                       </span>
-                      <span className="text-xs text-muted-foreground font-medium">{blogPosts[0].category}</span>
+                      <span className="text-xs text-muted-foreground font-medium">{featuredPost.category}</span>
                     </div>
                     <h2 className="text-4xl font-bold text-foreground mb-4 leading-tight group-hover:text-accent transition-colors">
-                      {blogPosts[0].title}
+                      {featuredPost.title}
                     </h2>
                     <p className="text-muted-foreground mb-6 leading-relaxed text-lg">
-                      {blogPosts[0].excerpt}
+                      {featuredPost.excerpt}
                     </p>
                   </div>
                   <div className="space-y-4">
                     <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                       <div className="flex items-center gap-2">
                         <User size={18} className="text-accent" />
-                        <span className="font-medium">{blogPosts[0].author}</span>
+                        <span className="font-medium">{featuredPost.author}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar size={18} className="text-accent" />
-                        <span>{new Date(blogPosts[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        <span>{new Date(featuredPost.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
-                      <div className="text-accent font-medium">{blogPosts[0].readTime} min read</div>
+                      <div className="text-accent font-medium">{featuredPost.readTime} min read</div>
                     </div>
-                    <Link href={`/blog/${blogPosts[0].id}`}>
+                    <Link href={`/blog/${featuredPost.slug}`}>
                       <PremiumButton variant="primary" icon={<ArrowRight size={18} />} className="w-full md:w-auto">
                         Read Full Article
                       </PremiumButton>
@@ -237,87 +170,87 @@ export default function BlogPage() {
           <ScrollReveal>
             <div className="flex items-center gap-3 mb-12">
               <TrendingUp className="w-6 h-6 text-accent" />
-                <h2 className="text-3xl font-bold text-foreground">Latest Articles</h2>
-                <span className="text-sm text-muted-foreground">
-                  {filteredPosts.length} results
-                </span>
+              <h2 className="text-3xl font-bold text-foreground">Latest Articles</h2>
+              <span className="text-sm text-muted-foreground">
+                {filteredPosts.length} results
+              </span>
             </div>
           </ScrollReveal>
 
-            {paginatedPosts.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {paginatedPosts.map((post, index) => (
-                    <ScrollReveal key={post.id} delay={index * 0.1}>
-                      <Link href={`/blog/${post.id}`}>
-                        <GlassCard className="p-6 h-full hover:shadow-xl transition-all duration-300 group cursor-pointer">
-                          <div className="flex items-start justify-between mb-4">
-                            <span className="text-5xl group-hover:scale-110 transition-transform duration-300">
-                              {post.image}
-                            </span>
-                            <span className="text-xs bg-accent/20 text-accent px-3 py-1 rounded-full font-medium border border-accent/30">
-                              {post.readTime}m
-                            </span>
-                          </div>
+          {paginatedPosts.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginatedPosts.map((post, index) => (
+                  <ScrollReveal key={post.id} delay={index * 0.1}>
+                    <Link href={`/blog/${post.slug}`}>
+                      <GlassCard className="p-6 h-full hover:shadow-xl transition-all duration-300 group cursor-pointer">
+                        <div className="flex items-start justify-between mb-4">
+                          <span className="text-5xl group-hover:scale-110 transition-transform duration-300">
+                            {post.image}
+                          </span>
+                          <span className="text-xs bg-accent/20 text-accent px-3 py-1 rounded-full font-medium border border-accent/30">
+                            {post.readTime}m
+                          </span>
+                        </div>
 
-                          <div className="space-y-3 flex-grow flex flex-col">
-                            <p className="text-xs text-accent font-bold uppercase tracking-wide">{post.category}</p>
-                            <h3 className="text-lg font-bold text-foreground group-hover:text-accent transition-colors line-clamp-2">
-                              {post.title}
-                            </h3>
-                            <p className="text-muted-foreground text-sm line-clamp-2 flex-grow">{post.excerpt}</p>
-                          </div>
+                        <div className="space-y-3 flex-grow flex flex-col">
+                          <p className="text-xs text-accent font-bold uppercase tracking-wide">{post.category}</p>
+                          <h3 className="text-lg font-bold text-foreground group-hover:text-accent transition-colors line-clamp-2">
+                            {post.title}
+                          </h3>
+                          <p className="text-muted-foreground text-sm line-clamp-2 flex-grow">{post.excerpt}</p>
+                        </div>
 
-                          <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-auto">
-                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                              <span className="font-medium">{post.author}</span>
-                              <span className="text-muted-foreground/60">
-                                {new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                              </span>
-                            </div>
-                            <ArrowRight size={16} className="text-accent group-hover:translate-x-1 transition-transform" />
+                        <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-auto">
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span className="font-medium">{post.author}</span>
+                            <span className="text-muted-foreground/60">
+                              {new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </span>
                           </div>
-                        </GlassCard>
-                      </Link>
-                    </ScrollReveal>
-                  ))}
+                          <ArrowRight size={16} className="text-accent group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </GlassCard>
+                    </Link>
+                  </ScrollReveal>
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="mt-10 flex items-center justify-center gap-2">
+                  <PremiumButton
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </PremiumButton>
+                  <span className="text-sm text-muted-foreground px-2">
+                    Page {currentPage} / {totalPages}
+                  </span>
+                  <PremiumButton
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </PremiumButton>
                 </div>
-
-                {totalPages > 1 && (
-                  <div className="mt-10 flex items-center justify-center gap-2">
-                    <PremiumButton
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      Previous
-                    </PremiumButton>
-                    <span className="text-sm text-muted-foreground px-2">
-                      Page {currentPage} / {totalPages}
-                    </span>
-                    <PremiumButton
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                    >
-                      Next
-                    </PremiumButton>
-                  </div>
-                )}
-              </>
-            ) : (
-              <GlassCard className="p-10 text-center">
-                <h3 className="text-2xl font-bold text-foreground mb-3">No articles found</h3>
-                <p className="text-muted-foreground mb-6">
-                  Try another keyword or reset filters to see all available insights.
-                </p>
-                <PremiumButton variant="primary" onClick={clearFilters}>
-                  Clear filters
-                </PremiumButton>
-              </GlassCard>
-            )}
+              )}
+            </>
+          ) : (
+            <GlassCard className="p-10 text-center">
+              <h3 className="text-2xl font-bold text-foreground mb-3">No articles found</h3>
+              <p className="text-muted-foreground mb-6">
+                Try another keyword or reset filters to see all available insights.
+              </p>
+              <PremiumButton variant="primary" onClick={clearFilters}>
+                Clear filters
+              </PremiumButton>
+            </GlassCard>
+          )}
         </div>
       </section>
 
@@ -331,7 +264,7 @@ export default function BlogPage() {
             <p className="text-lg text-muted-foreground mb-12 max-w-xl mx-auto">
               Subscribe to get early access to articles, job opportunities, and exclusive career tips delivered to your inbox.
             </p>
-            
+
             <GlassCard className="p-1 flex flex-col sm:flex-row gap-1 max-w-lg mx-auto">
               <Input
                 type="email"

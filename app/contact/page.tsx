@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Phone, Mail, MapPin, Clock, MessageCircle } from 'lucide-react'
+import { apiClient } from '@/lib/api-client'
+import { toApiErrorMessage } from '@/lib/api-errors'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -48,12 +50,16 @@ export default function ContactPage() {
     }
 
     setIsSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 800))
-    setIsSubmitting(false)
-
-    setFormData({ name: '', email: '', subject: '', message: '' })
-    setSubmitMessage('Your message has been sent successfully. Our team will contact you soon.')
-    setShowSuccessModal(true)
+    try {
+      await apiClient.contact.submit(formData)
+      setFormData({ name: '', email: '', subject: '', message: '' })
+      setSubmitMessage('Your message has been sent successfully. Our team will contact you soon.')
+      setShowSuccessModal(true)
+    } catch (error) {
+      setSubmitMessage(toApiErrorMessage(error, 'Could not send your message. Please try again.'))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (

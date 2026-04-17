@@ -7,6 +7,10 @@ import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { Eye, EyeOff, Zap } from 'lucide-react'
 import { BrandLogo } from '@/components/brand-logo'
+import { apiClient } from '@/lib/api-client'
+import { saveSession } from '@/lib/session'
+import { toApiErrorMessage } from '@/lib/api-errors'
+import { useRouter } from 'next/navigation'
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -19,18 +23,40 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [step, setStep] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const router = useRouter()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSubmitError('')
     if (step === 1) {
       setStep(2)
     } else {
-      console.log('Sign up submitted:', formData)
+      if (formData.password.length < 8) {
+        setSubmitError('Password must be at least 8 characters.')
+        return
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setSubmitError('Password confirmation does not match.')
+        return
+      }
+
+      setIsSubmitting(true)
+      try {
+        const response = await apiClient.auth.register(formData)
+        saveSession(response)
+        router.push('/dashboard')
+      } catch (error) {
+        setSubmitError(toApiErrorMessage(error, 'Sign up failed. Please try again.'))
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
@@ -187,11 +213,11 @@ export default function SignUpPage() {
                     />
                     <label htmlFor="terms" className="text-sm text-muted-foreground">
                       I agree to the{' '}
-                      <Link href="#" className="text-accent hover:text-accent/80 transition-colors font-medium">
+                      <Link href="/terms" className="text-accent hover:text-accent/80 transition-colors font-medium">
                         Terms of Service
                       </Link>{' '}
                       and{' '}
-                      <Link href="#" className="text-accent hover:text-accent/80 transition-colors font-medium">
+                      <Link href="/privacy-policy" className="text-accent hover:text-accent/80 transition-colors font-medium">
                         Privacy Policy
                       </Link>
                     </label>
@@ -207,10 +233,11 @@ export default function SignUpPage() {
                     >
                       Back
                     </PremiumButton>
-                    <PremiumButton type="submit" variant="primary" size="lg" className="flex-1">
+                    <PremiumButton type="submit" variant="primary" size="lg" className="flex-1" isLoading={isSubmitting}>
                       Create Account
                     </PremiumButton>
                   </div>
+                  {submitError && <p className="text-sm text-destructive">{submitError}</p>}
                 </>
               )}
             </form>

@@ -1,9 +1,10 @@
 'use client'
 
 import { Heart, MapPin, TrendingUp } from 'lucide-react'
-import { useState } from 'react'
+import { MouseEvent, useState } from 'react'
 import { PremiumButton } from './premium-button'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 interface JobCardProProps {
   id: string
@@ -12,6 +13,7 @@ interface JobCardProProps {
   location: string
   salary: string
   tags: string[]
+  href?: string
   featured?: boolean
   onApply?: () => void
   onSave?: () => void
@@ -25,6 +27,7 @@ export function JobCardPro({
   location,
   salary,
   tags,
+  href,
   featured = false,
   onApply,
   onSave,
@@ -32,7 +35,9 @@ export function JobCardPro({
 }: JobCardProProps) {
   const [savedState, setSavedState] = useState(isSaved)
 
-  const handleSave = () => {
+  const handleSave = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
     setSavedState(!savedState)
     onSave?.()
   }
@@ -100,14 +105,26 @@ export function JobCardPro({
 
         {/* Apply Button */}
         <div className="pt-2">
-          <PremiumButton
-            variant="primary"
-            size="md"
-            className="w-full"
-            onClick={onApply}
-          >
-            View & Apply
-          </PremiumButton>
+          {href ? (
+            <Link href={href} className="block">
+              <PremiumButton
+                variant="primary"
+                size="md"
+                className="w-full"
+              >
+                View & Apply
+              </PremiumButton>
+            </Link>
+          ) : (
+            <PremiumButton
+              variant="primary"
+              size="md"
+              className="w-full"
+              onClick={onApply}
+            >
+              View & Apply
+            </PremiumButton>
+          )}
         </div>
       </div>
     </div>

@@ -8,12 +8,13 @@ import { FAQAccordion } from '@/components/faq-accordion'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin, DollarSign, Users, CheckCircle2, Share2, Bookmark, ArrowRight, Star, Clock, TrendingUp } from 'lucide-react'
+import { jobRecords } from '@/lib/mock-data'
 
 const SITE_URL = 'https://xkldvietdai.com'
 
 export function generateMetadata({ params }: { params: { id: string } }): Metadata {
-  const validJobIds = new Set(['1', '2', '3', '4', '5', '6'])
-  if (!validJobIds.has(params.id)) {
+  const job = jobRecords.find((item) => String(item.id) === params.id)
+  if (!job) {
     return {
       title: 'Job Not Found | XKLD VietDai',
       description: 'The requested job posting is not available.',
@@ -21,8 +22,8 @@ export function generateMetadata({ params }: { params: { id: string } }): Metada
     }
   }
 
-  const title = 'Senior Software Engineer in Taipei | XKLD VietDai'
-  const description = 'Review responsibilities, benefits, and requirements for this Taiwan opportunity and apply now.'
+  const title = `${job.title} in ${job.location} | XKLD VietDai`
+  const description = `Review responsibilities, benefits, and requirements for ${job.title} and apply now.`
   const canonical = `/jobs/${params.id}`
 
   return {
@@ -56,23 +57,23 @@ export function generateMetadata({ params }: { params: { id: string } }): Metada
 
 export default function JobDetailPage({ params }: { params: { id: string } }) {
   const jobId = params.id
-  const validJobIds = new Set(['1', '2', '3', '4', '5', '6'])
+  const record = jobRecords.find((item) => String(item.id) === jobId)
 
-  if (!validJobIds.has(jobId)) {
+  if (!record) {
     notFound()
   }
 
   // Sample job data
   const job = {
     id: jobId,
-    title: 'Senior Software Engineer',
-    company: 'Tech Company Inc.',
-    location: 'Taipei, Taiwan',
-    salary: '$2,000 - $3,500',
+    title: record.title,
+    company: record.company,
+    location: `${record.location}, ${record.country}`,
+    salary: `$${record.salaryMin.toLocaleString()} - $${record.salaryMax.toLocaleString()}`,
     type: 'Full-time',
     level: 'Senior',
-    category: 'Technology',
-    posted: '2 days ago',
+    category: record.category,
+    posted: record.postedAt,
     applications: 47,
     description: `We are looking for an experienced Senior Software Engineer to join our innovative team. You will be responsible for designing and developing scalable applications that serve millions of users worldwide.`,
     responsibilities: [

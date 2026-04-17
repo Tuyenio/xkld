@@ -7,6 +7,10 @@ import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { Eye, EyeOff, CheckCircle2 } from 'lucide-react'
 import { BrandLogo } from '@/components/brand-logo'
+import { apiClient } from '@/lib/api-client'
+import { saveSession } from '@/lib/session'
+import { toApiErrorMessage } from '@/lib/api-errors'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -15,15 +19,36 @@ export default function LoginPage() {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Login submitted:', formData)
+    setSubmitError('')
+    setIsSubmitting(true)
+
+    try {
+      const response = await apiClient.auth.login(formData)
+      const expiresInSeconds = rememberMe ? 60 * 60 * 24 * 30 : response.expiresInSeconds
+      saveSession({
+        accessToken: response.accessToken,
+        expiresInSeconds,
+        user: response.user,
+      })
+      const next = searchParams.get('next') || '/dashboard'
+      router.push(next)
+    } catch (error) {
+      setSubmitError(toApiErrorMessage(error, 'Sign in failed. Please check your credentials.'))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -143,7 +168,11 @@ export default function LoginPage() {
                 </div>
 
                 {/* Submit Button */}
-                <PremiumButton type="submit" variant="primary" size="lg" className="w-full mt-6">
+                {submitError && (
+                  <p className="text-sm text-destructive">{submitError}</p>
+                )}
+
+                <PremiumButton type="submit" variant="primary" size="lg" className="w-full mt-6" isLoading={isSubmitting}>
                   Sign In
                 </PremiumButton>
               </form>

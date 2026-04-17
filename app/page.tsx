@@ -192,12 +192,12 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
-              { title: 'Senior Software Engineer', company: 'TechCorp Taipei', location: 'Taipei', salary: '$3,500 - $5,000', tags: ['React', 'Node.js', 'AWS'], featured: true },
-              { title: 'Product Manager', company: 'DataSys Inc', location: 'Hsinchu', salary: '$2,800 - $4,200', tags: ['Product', 'Strategy', 'Leadership'], featured: false },
-              { title: 'UX/UI Designer', company: 'CreativeStudio', location: 'Taichung', salary: '$2,200 - $3,500', tags: ['Design', 'Figma', 'Web3'], featured: true },
-              { title: 'Marketing Manager', company: 'BrandInc', location: 'Taipei', salary: '$2,500 - $3,800', tags: ['Marketing', 'Digital', 'Analytics'], featured: false },
-            ].map((job, index) => (
-              <JobCardPro key={index} id={String(index)} title={job.title} company={job.company} location={job.location} salary={job.salary} tags={job.tags} featured={job.featured} />
+              { id: '1', title: 'Senior Software Engineer', company: 'TechCorp Taipei', location: 'Taipei', salary: '$3,500 - $5,000', tags: ['React', 'Node.js', 'AWS'], featured: true },
+              { id: '2', title: 'Product Manager', company: 'DataSys Inc', location: 'Hsinchu', salary: '$2,800 - $4,200', tags: ['Product', 'Strategy', 'Leadership'], featured: false },
+              { id: '3', title: 'UX/UI Designer', company: 'CreativeStudio', location: 'Taichung', salary: '$2,200 - $3,500', tags: ['Design', 'Figma', 'Web3'], featured: true },
+              { id: '4', title: 'Marketing Manager', company: 'BrandInc', location: 'Taipei', salary: '$2,500 - $3,800', tags: ['Marketing', 'Digital', 'Analytics'], featured: false },
+            ].map((job) => (
+              <JobCardPro key={job.id} id={job.id} href={`/jobs/${job.id}`} title={job.title} company={job.company} location={job.location} salary={job.salary} tags={job.tags} featured={job.featured} />
             ))}
           </div>
         </div>
