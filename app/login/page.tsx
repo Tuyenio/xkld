@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { Input } from '@/components/ui/input'
@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { Eye, EyeOff, CheckCircle2 } from 'lucide-react'
 import { BrandLogo } from '@/components/brand-logo'
 import { apiClient } from '@/lib/api-client'
-import { saveSession } from '@/lib/session'
+import { getSession, saveSession } from '@/lib/session'
 import { toApiErrorMessage } from '@/lib/api-errors'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -23,6 +23,12 @@ export default function LoginPage() {
   const [submitError, setSubmitError] = useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const session = getSession()
+    if (!session) return
+    router.replace(session.user.role === 'admin' ? '/admin' : '/dashboard')
+  }, [router])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -39,10 +45,13 @@ export default function LoginPage() {
       const expiresInSeconds = rememberMe ? 60 * 60 * 24 * 30 : response.expiresInSeconds
       saveSession({
         accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
         expiresInSeconds,
         user: response.user,
       })
-      const next = searchParams.get('next') || '/dashboard'
+      const next =
+        searchParams.get('next') ||
+        (response.user.role === 'admin' ? '/admin' : '/dashboard')
       router.push(next)
     } catch (error) {
       setSubmitError(toApiErrorMessage(error, 'Sign in failed. Please check your credentials.'))

@@ -12,7 +12,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <RouteGuard>
+    <RouteGuard requiredRole="admin">
       <div className="admin-shell admin-density flex h-svh overflow-hidden bg-background">
         <AdminSidebar />
         <main className="admin-main min-w-0 flex-1 overflow-y-auto">{children}</main>

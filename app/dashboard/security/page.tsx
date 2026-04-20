@@ -1,9 +1,63 @@
+'use client'
+
+import { useState } from 'react'
 import { ShieldCheck, KeyRound, Smartphone, Laptop, AlertTriangle, LockKeyhole, CheckCircle2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { DashboardShell } from '@/components/dashboard-shell'
+import { Input } from '@/components/ui/input'
+import { apiClient } from '@/lib/api-client'
+import { toApiErrorMessage } from '@/lib/api-errors'
+import { signOut } from '@/lib/auth-actions'
 
 export default function DashboardSecurityPage() {
+  const router = useRouter()
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  })
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+
+  const handleSignOut = async () => {
+    await signOut()
+    router.replace('/login')
+  }
+
+  const handlePasswordChange = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setPasswordError('')
+    setPasswordSuccess('')
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError('Password confirmation does not match.')
+      return
+    }
+
+    setIsChangingPassword(true)
+    try {
+      const response = await apiClient.auth.changePassword(passwordForm)
+      setPasswordSuccess(response.message)
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      })
+
+      await signOut()
+      router.replace('/login')
+    } catch (error) {
+      setPasswordError(
+        toApiErrorMessage(error, 'Could not change password. Please try again.'),
+      )
+    } finally {
+      setIsChangingPassword(false)
+    }
+  }
+
   const activeSessions = [
     { id: 's1', device: 'MacBook Pro - Chrome', location: 'Ho Chi Minh City', lastSeen: 'Now', current: true },
     { id: 's2', device: 'iPhone 15 - Safari', location: 'Ho Chi Minh City', lastSeen: '2 hours ago', current: false },
@@ -44,7 +98,52 @@ export default function DashboardSecurityPage() {
             <p className="text-muted-foreground">Last changed: 42 days ago</p>
             <p className="text-muted-foreground">Recommended interval: 90 days</p>
           </div>
-          <PremiumButton variant="outline" size="sm" icon={<LockKeyhole size={15} />}>Change Password</PremiumButton>
+          <form className="space-y-3" onSubmit={handlePasswordChange}>
+            <Input
+              type="password"
+              value={passwordForm.currentPassword}
+              onChange={(event) =>
+                setPasswordForm((prev) => ({
+                  ...prev,
+                  currentPassword: event.target.value,
+                }))
+              }
+              placeholder="Current password"
+              required
+            />
+            <Input
+              type="password"
+              value={passwordForm.newPassword}
+              onChange={(event) =>
+                setPasswordForm((prev) => ({ ...prev, newPassword: event.target.value }))
+              }
+              placeholder="New password"
+              required
+            />
+            <Input
+              type="password"
+              value={passwordForm.confirmPassword}
+              onChange={(event) =>
+                setPasswordForm((prev) => ({
+                  ...prev,
+                  confirmPassword: event.target.value,
+                }))
+              }
+              placeholder="Confirm new password"
+              required
+            />
+            {passwordError && <p className="text-xs text-destructive">{passwordError}</p>}
+            {passwordSuccess && <p className="text-xs text-emerald-600">{passwordSuccess}</p>}
+            <PremiumButton
+              type="submit"
+              variant="outline"
+              size="sm"
+              icon={<LockKeyhole size={15} />}
+              isLoading={isChangingPassword}
+            >
+              Change Password
+            </PremiumButton>
+          </form>
         </GlassCard>
 
         <GlassCard className="p-6 md:col-span-2">
@@ -64,7 +163,7 @@ export default function DashboardSecurityPage() {
                 {session.current ? (
                   <span className="text-xs rounded-full bg-emerald-500/15 text-emerald-600 border border-emerald-500/25 px-3 py-1 font-semibold w-fit">Current session</span>
                 ) : (
-                  <PremiumButton variant="ghost" size="sm">Sign out</PremiumButton>
+                  <PremiumButton variant="ghost" size="sm" onClick={() => void handleSignOut()}>Sign out</PremiumButton>
                 )}
               </div>
             ))}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { Input } from '@/components/ui/input'
@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { Eye, EyeOff, Zap } from 'lucide-react'
 import { BrandLogo } from '@/components/brand-logo'
 import { apiClient } from '@/lib/api-client'
-import { saveSession } from '@/lib/session'
+import { getSession, saveSession } from '@/lib/session'
 import { toApiErrorMessage } from '@/lib/api-errors'
 import { useRouter } from 'next/navigation'
 
@@ -26,6 +26,12 @@ export default function SignUpPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const router = useRouter()
+
+  useEffect(() => {
+    const session = getSession()
+    if (!session) return
+    router.replace(session.user.role === 'admin' ? '/admin' : '/dashboard')
+  }, [router])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target

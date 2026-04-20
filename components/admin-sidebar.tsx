@@ -1,12 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { BarChart3, Briefcase, Users, FileText, Settings, LogOut, Menu, X, PanelLeftClose, PanelLeftOpen, ClipboardList } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { signOut } from '@/lib/auth-actions'
 
 export default function AdminSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
 
@@ -44,6 +46,11 @@ export default function AdminSidebar() {
     { icon: Users, label: 'Users', href: '/admin/users' },
     { icon: ClipboardList, label: 'QA Checklist', href: '/admin/qa' },
   ]
+
+  const handleLogout = async () => {
+    await signOut()
+    router.replace('/login')
+  }
 
   return (
     <>
@@ -112,6 +119,8 @@ export default function AdminSidebar() {
               <span className={`text-[0.95rem] font-medium ${isCollapsed ? 'lg:hidden' : ''}`}>Settings</span>
             </Link>
             <button
+              type="button"
+              onClick={() => void handleLogout()}
               title={isCollapsed ? 'Logout' : undefined}
               className={`flex items-center w-full rounded-xl py-2.5 text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80 ${isCollapsed ? 'lg:justify-center lg:px-2' : 'gap-3 px-3'}`}
             >

@@ -1,11 +1,22 @@
+'use client'
+
 import { GlassCard } from '@/components/glass-card'
 import { PremiumButton } from '@/components/premium-button'
 import { ScrollReveal } from '@/components/scroll-reveal'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { LogOut, User, FileText, Bookmark, Settings, Clock, CheckCircle2, ArrowRight, Zap, Star, TrendingUp } from 'lucide-react'
 import { BrandLogo } from '@/components/brand-logo'
+import { signOut } from '@/lib/auth-actions'
 
 export default function DashboardPage() {
+  const router = useRouter()
+
+  const handleSignOut = async () => {
+    await signOut()
+    router.replace('/login')
+  }
+
   const statStyles = {
     accent: { box: 'bg-accent/20 group-hover:bg-accent/30', icon: 'text-accent' },
     primary: { box: 'bg-primary/20 group-hover:bg-primary/30', icon: 'text-primary' },
@@ -78,7 +89,7 @@ export default function DashboardPage() {
             <PremiumButton variant="outline" size="sm" icon={<Settings size={16} />}>
               Settings
             </PremiumButton>
-            <PremiumButton variant="ghost" size="sm" icon={<LogOut size={16} />}>
+            <PremiumButton variant="ghost" size="sm" icon={<LogOut size={16} />} onClick={() => void handleSignOut()}>
               Sign Out
             </PremiumButton>
           </div>

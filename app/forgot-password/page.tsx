@@ -13,6 +13,7 @@ import { toApiErrorMessage } from '@/lib/api-errors'
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [debugResetToken, setDebugResetToken] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
 
@@ -23,7 +24,12 @@ export default function ForgotPasswordPage() {
 
     setIsSubmitting(true)
     try {
-      await apiClient.auth.forgotPassword({ email })
+      const response = await apiClient.auth.forgotPassword({ email })
+      setDebugResetToken(
+        typeof (response as { debugResetToken?: unknown }).debugResetToken === 'string'
+          ? (response as { debugResetToken: string }).debugResetToken
+          : null
+      )
       setSubmitted(true)
     } catch (error) {
       setSubmitError(toApiErrorMessage(error, 'Could not send reset link. Please try again.'))
@@ -85,7 +91,19 @@ export default function ForgotPasswordPage() {
                 <p className="mb-7 text-muted-foreground">
                   We have sent a password reset link to <span className="font-semibold text-foreground">{email}</span>.
                 </p>
+                {debugResetToken && (
+                  <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700">
+                    Development token: <span className="font-mono">{debugResetToken}</span>
+                  </div>
+                )}
                 <div className="space-y-3">
+                  {debugResetToken && (
+                    <Link href={`/reset-password?token=${encodeURIComponent(debugResetToken)}`} className="block">
+                      <PremiumButton variant="secondary" size="lg" className="w-full">
+                        Go to Reset Password
+                      </PremiumButton>
+                    </Link>
+                  )}
                   <PremiumButton variant="primary" size="lg" className="w-full" onClick={() => setSubmitted(false)}>
                     Send Again
                   </PremiumButton>

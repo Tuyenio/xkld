@@ -2,6 +2,7 @@ import type { AuthUser } from '@/lib/auth-types'
 
 const SESSION_KEY = 'xkld_session'
 const AUTH_HINT_COOKIE_KEY = 'xkld_auth_hint'
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30
 
 export type AppSession = {
   accessToken: string
@@ -40,7 +41,8 @@ export function saveSession(input: {
   const session: AppSession = {
     accessToken: input.accessToken,
     refreshToken: input.refreshToken,
-    expiresAt: Date.now() + input.expiresInSeconds * 1000,
+    // Keep a longer browser session window so access-token expiry can be recovered via refresh.
+    expiresAt: Date.now() + SESSION_TTL_SECONDS * 1000,
     user: input.user,
   }
 
@@ -48,7 +50,7 @@ export function saveSession(input: {
   setAuthHintCookie(session)
 }
 
-export function getSession(): AppSession | null {
+export function getSession(options?: { allowExpired?: boolean }): AppSession | null {
   if (typeof window === 'undefined') return null
 
   const raw = window.localStorage.getItem(SESSION_KEY)
@@ -67,9 +69,7 @@ export function getSession(): AppSession | null {
       return null
     }
 
-    if (parsed.expiresAt <= Date.now()) {
-      window.localStorage.removeItem(SESSION_KEY)
-      clearAuthHintCookie()
+    if (parsed.expiresAt <= Date.now() && !options?.allowExpired) {
       return null
     }
 
@@ -91,4 +91,5 @@ export function clearSession() {
 export function isAuthenticated() {
   return Boolean(getSession())
 }
+
 

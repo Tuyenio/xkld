@@ -2,14 +2,39 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { PremiumButton } from './premium-button'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { BrandLogo } from '@/components/brand-logo'
+import { getSession } from '@/lib/session'
+import { signOut } from '@/lib/auth-actions'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [dashboardHref, setDashboardHref] = useState('/dashboard')
+  const router = useRouter()
+
+  useEffect(() => {
+    const session = getSession()
+    if (!session) {
+      setIsAuthenticated(false)
+      setDashboardHref('/dashboard')
+      return
+    }
+
+    setIsAuthenticated(true)
+    setDashboardHref(session.user.role === 'admin' ? '/admin' : '/dashboard')
+  }, [])
+
+  const handleLogout = async () => {
+    await signOut()
+    setIsAuthenticated(false)
+    setMobileMenuOpen(false)
+    router.push('/login')
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,16 +83,31 @@ export default function Header() {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Link href="/login">
-              <PremiumButton variant="ghost" size="md">
-                Sign In
-              </PremiumButton>
-            </Link>
-            <Link href="/signup">
-              <PremiumButton variant="primary" size="md">
-                Apply Now
-              </PremiumButton>
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link href={dashboardHref}>
+                  <PremiumButton variant="ghost" size="md">
+                    Dashboard
+                  </PremiumButton>
+                </Link>
+                <PremiumButton variant="outline" size="md" onClick={() => void handleLogout()}>
+                  Sign Out
+                </PremiumButton>
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <PremiumButton variant="ghost" size="md">
+                    Sign In
+                  </PremiumButton>
+                </Link>
+                <Link href="/signup">
+                  <PremiumButton variant="primary" size="md">
+                    Apply Now
+                  </PremiumButton>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -94,16 +134,36 @@ export default function Header() {
               </Link>
             ))}
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
-              <Link href="/login" className="w-full">
-                <PremiumButton variant="outline" size="md" className="w-full">
-                  Sign In
-                </PremiumButton>
-              </Link>
-              <Link href="/signup" className="w-full">
-                <PremiumButton variant="primary" size="md" className="w-full">
-                  Apply Now
-                </PremiumButton>
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <Link href={dashboardHref} className="w-full">
+                    <PremiumButton variant="outline" size="md" className="w-full">
+                      Dashboard
+                    </PremiumButton>
+                  </Link>
+                  <PremiumButton
+                    variant="primary"
+                    size="md"
+                    className="w-full"
+                    onClick={() => void handleLogout()}
+                  >
+                    Sign Out
+                  </PremiumButton>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="w-full">
+                    <PremiumButton variant="outline" size="md" className="w-full">
+                      Sign In
+                    </PremiumButton>
+                  </Link>
+                  <Link href="/signup" className="w-full">
+                    <PremiumButton variant="primary" size="md" className="w-full">
+                      Apply Now
+                    </PremiumButton>
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         )}
